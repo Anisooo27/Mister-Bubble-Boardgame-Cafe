@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-bg-dark: #0d0d10;
+    --color-bg-card: #15151b;
+    --color-bg-card-hover: #1c1c24;
+    --color-red-primary: #8c1c1c;
+    --color-red-bright: #b3231c;
+    --color-red-glow: #e6392f;
+    --color-gold: #f2a900;
+    --color-gold-bright: #ffcc33;
+    --color-gold-amber: #e69500;
+    --color-jade: #2f9e44;
+    --color-text-main: #f3f4f6;
+    --color-text-muted: #9ca3af;
+  }
+
+  body {
+    background-color: #0c0c0f;
+    color: #f3f4f6;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Cinzel', 'Bebas Neue', serif;
+  }
+
+  .font-bebas {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.05em;
+  }
+
+  .font-arabic {
+    font-family: 'Cairo', sans-serif;
+  }
+}
+
+/* Custom Asian & Cafe Visual Elements */
+.bg-grunge {
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(179, 35, 28, 0.15), transparent 40%),
+    radial-gradient(circle at 100% 60%, rgba(242, 169, 0, 0.08), transparent 35%),
+    radial-gradient(circle at 0% 80%, rgba(47, 158, 68, 0.06), transparent 30%);
+}
+
+.bg-pattern-grid {
+  background-size: 32px 32px;
+  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+/* Chinese Geometric Key Fret Border for Price Medallions */
+.chinese-fret-border {
+  background: radial-gradient(circle, #9b1c1c 0%, #6e0e0e 100%);
+  border: 2px solid #f2a900;
+  box-shadow: 0 0 12px rgba(242, 169, 0, 0.35), inset 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Torn paper / ribbon banner styles */
+.torn-banner {
+  position: relative;
+  clip-path: polygon(
+    0% 0%, 97% 0%, 100% 50%, 97% 100%, 0% 100%, 3% 50%
+  );
+}
+
+.torn-banner-ribbon {
+  position: relative;
+  background: linear-gradient(135deg, #b3231c, #8c1c1c);
+  clip-path: polygon(4% 0%, 96% 0%, 100% 50%, 96% 100%, 4% 100%, 0% 50%);
+}
+
+/* Gold Text Glow */
+.text-gold-glow {
+  color: #ffcc33;
+  text-shadow: 0 0 12px rgba(255, 204, 51, 0.5), 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.text-red-glow {
+  color: #ff4d4d;
+  text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0d10;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a35;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8c1c1c;
+}
+
+/* Cat Mascot Keyframe Animations */
+@keyframes catTailSwish {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(14deg);
+  }
+}
+
+@keyframes catEarTwitch {
+  0%, 90%, 100% {
+    transform: rotate(0deg);
+  }
+  93% {
+    transform: rotate(-8deg);
+  }
+  96% {
+    transform: rotate(6deg);
+  }
+}
+
+@keyframes catBlink {
+  0%, 94%, 98%, 100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes catFloatIdle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes catHeartPop {
+  0% {
+    transform: scale(0) translateY(0);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.2) translateY(-10px);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) translateY(-25px);
+    opacity: 0;
+  }
+}
+
+.cat-tail-anim {
+  transform-origin: 15px 40px;
+  animation: catTailSwish 3.5s ease-in-out infinite;
+}
+
+.cat-ear-anim {
+  transform-origin: 30px 15px;
+  animation: catEarTwitch 5s ease-in-out infinite;
+}
+
+.cat-eye-anim {
+  transform-origin: center;
+  animation: catBlink 4s ease-in-out infinite;
+}
+
+.cat-float-anim {
+  animation: catFloatIdle 3s ease-in-out infinite;
+}
+
+.heart-pop-anim {
+  animation: catHeartPop 1.2s ease-out forwards;
+}
+
+/* Respect user's reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .cat-tail-anim,
+  .cat-ear-anim,
+  .cat-eye-anim,
+  .cat-float-anim,
+  .heart-pop-anim {
+    animation: none !important;
+  }
+}
+
+/* Dedicated Print Stylesheet for Invoices / Receipts */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #111111 !important;
+  }
+
+  /* Hide all app chrome, navigation, drawers, mascots, floating action buttons */
+  #main-navbar,
+  #hero,
+  #menu,
+  #about,
+  #games,
+  #announcements,
+  #events,
+  #host-event,
+  #reservation,
+  #gallery,
+  #reviews,
+  #location,
+  footer,
+  #floating-loyalty-btn,
+  #floating-tray-btn,
+  #floating-tracker-btn,
+  #floating-last-invoice-btn,
+  #back-to-top-btn,
+  #cat-mascot-container,
+  .print\\:hidden,
+  button {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  /* Display printable facture cleanly across the full page */
+  #printable-facture {
+    display: block !important;
+    visibility: visible !important;
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 10px !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+  }
+
+  #printable-facture * {
+    visibility: visible !important;
+    color: #000000 !important;
+    text-shadow: none !important;
+  }
+
+  #printable-facture table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  #printable-facture th {
+    background-color: #f1f5f9 !important;
+    color: #000000 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+  }
+
+  #printable-facture td {
+    border-bottom: 1px solid #e2e8f0 !important;
+  }
+
+  #printable-facture img {
+    max-width: 140px !important;
+    height: auto !important;
+  }
+}

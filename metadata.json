@@ -1,0 +1,6 @@
+{
+  "name": "Mister Bubble Boardgame Cafe",
+  "description": "Asian-themed bubble tea & board game café in Mostaganem, Algeria with a vibrant menu, board games, and cozy lounge.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "Mister Bubble Boardgame Cafe | السيد فقاعة",
+  "short_name": "Mister Bubble",
+  "description": "Asian-themed bubble tea & board game café in Salamandre, Mostaganem, Algeria.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d0d12",
+  "theme_color": "#8c1c1c",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%238c1c1c'/><circle cx='50' cy='50' r='44' fill='none' stroke='%23f2a900' stroke-width='2'/><path d='M50 20 L22 46 L78 46 Z' fill='%23f2a900'/><circle cx='50' cy='58' r='14' fill='%23f4d090'/></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

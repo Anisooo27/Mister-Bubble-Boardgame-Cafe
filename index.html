@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mister Bubble Boardgame Cafe | السيد فقاعة — Mostaganem</title>
+    <meta name="description" content="Asian-themed bubble tea & board game café in Mostaganem, Algeria. Sip handcrafted bubble tea, play 50+ curated board games, and delight in a cozy lounge with resident cats." />
+    
+    <!-- Open Graph & Social Meta Tags -->
+    <meta property="og:title" content="Mister Bubble Boardgame Cafe | السيد فقاعة" />
+    <meta property="og:description" content="SIP. PLAY. DELIGHT. Mostaganem's premier Asian-themed bubble tea & board game café in Salamandre." />
+    <meta property="og:type" content="restaurant" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="ar_DZ" />
+    <meta property="og:locale:alternate" content="fr_DZ" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#8c1c1c" />
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Google Fonts: Bebas Neue, Cairo, Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cairo:wght@400;600;700;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='48' fill='%238c1c1c'/><circle cx='50' cy='50' r='44' fill='none' stroke='%23f2a900' stroke-width='2'/><path d='M50 20 L22 46 L78 46 Z' fill='%23f2a900'/><circle cx='50' cy='58' r='14' fill='%23f4d090'/><path d='M50 56 Q44 68 38 72 Q48 70 50 64 Q52 70 62 72 Q56 68 50 56 Z' fill='%231a1a1a'/></svg>" />
+
+    <!-- LocalBusiness Schema (JSON-LD) for Local SEO -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "CafeOrCoffeeShop",
+        "name": "Mister Bubble Boardgame Cafe | السيد فقاعة",
+        "alternateName": "Mister Bubble Mostaganem",
+        "image": "https://misterbubble.dz/og-cover.jpg",
+        "servesCuisine": ["Bubble Tea", "Asian Beverages", "Waffles", "Crepes", "Desserts"],
+        "priceRange": "1–1000 DZD",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "Salamandre (near Tramway Port Station)",
+          "addressLocality": "Mostaganem",
+          "postalCode": "27000",
+          "addressCountry": "DZ"
+        },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": 35.933333,
+          "longitude": 0.071667
+        },
+        "url": "https://maps.app.goo.gl/4N8Emd2rZtxoBgHQ6",
+        "telephone": "+213550123456",
+        "openingHoursSpecification": [
+          {
+            "@type": "OpeningHoursSpecification",
+            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+            "opens": "09:00",
+            "closes": "00:00"
+          }
+        ],
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "reviewCount": "49",
+          "bestRating": "5",
+          "worstRating": "1"
+        }
+      }
+    </script>
+  </head>
+  <body class="bg-[#0e0e11] text-[#f3f4f6] font-sans antialiased selection:bg-[#b3231c] selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        });
+      }
+    </script>
+  </body>
+</html>
