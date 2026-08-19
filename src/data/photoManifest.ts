@@ -624,4 +624,15 @@ export const PHOTO_MANIFEST: CafePhoto[] = [
     alt: 'Fettuccine crêpe ribbons drenched in melted chocolate with banana rounds and fruits',
     caption: 'Fettuccine style crepe ribbons loaded with melted Belgian chocolate and fresh fruits.',
   },
+  {
+    id: 'photo-menu-branded-pair',
+    filename: 'menu-branded-pair.jpg',
+    expectedPath: '/photos/menu-branded-pair.jpg',
+    title: 'Signature Bubble Tea & Strawberry Ade Pair',
+    titleArabic: 'ثنائي شاي الفقاعات المميز وعصير الفراولة الفوار',
+    category: 'drinks',
+    alt: 'Signature brown sugar bubble tea paired with sparkling strawberry ade fruit drink',
+    caption: 'Signature bubble tea & strawberry ade.',
+    featured: true,
+  },
 ];
