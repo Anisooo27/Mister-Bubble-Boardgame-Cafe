@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import { MenuItem, TrayItem, OrderDetails } from './types';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import { Navbar } from './components/Navbar';
@@ -425,6 +426,7 @@ export default function App() {
   return (
     <LanguageProvider>
       <CafeApp />
+      <Analytics />
     </LanguageProvider>
   );
 }
