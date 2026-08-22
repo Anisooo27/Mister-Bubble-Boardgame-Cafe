@@ -103,26 +103,26 @@ export const Leaderboard: React.FC = () => {
   };
 
   return (
-    <div className="my-10 p-6 sm:p-8 rounded-3xl bg-[#141420] border border-[#2c2c40] shadow-xl">
+    <div className="my-10 p-6 sm:p-8 rounded-3xl bg-[#ffffff] border-2 border-[#ebd8c1] shadow-md">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#f2a900] to-[#b3231c] flex items-center justify-center text-[#0f0f14] shadow-lg">
-            <Trophy className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#8c1c1c] to-[#591010] flex items-center justify-center text-[#ffcc33] shadow-sm">
+            <Trophy className="w-6 h-6 text-[#ffcc33]" />
           </div>
           <div>
-            <h3 className="font-bebas text-3xl text-white tracking-wide">
+            <h3 className="font-bebas text-3xl text-[#2a1b12] tracking-wide">
               {t('leaderboard.title')}
             </h3>
-            <p className="text-xs text-[#cbd5e1]">
+            <p className="text-xs text-[#786555]">
               {t('leaderboard.subtitle')}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="px-3 py-1 rounded-full bg-[#ffcc33]/15 text-[#ffcc33] border border-[#ffcc33]/40 text-xs font-bold font-bebas tracking-wider flex items-center gap-1.5">
-            <Flame className="w-3.5 h-3.5 text-[#ffcc33]" />
+          <span className="px-3 py-1 rounded-full bg-[#f4edd9] text-[#8c1c1c] border border-[#ebd8c1] text-xs font-bold font-bebas tracking-wider flex items-center gap-1.5 shadow-xs">
+            <Flame className="w-3.5 h-3.5 text-[#8c1c1c]" />
             <span>SEASON 2026 ACTIVE</span>
           </span>
         </div>
@@ -135,10 +135,10 @@ export const Leaderboard: React.FC = () => {
             key={player.id}
             className={`p-4 rounded-2xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
               player.rank === 1
-                ? 'bg-gradient-to-r from-[#221c16] via-[#1a1728] to-[#1a1524] border-[#ffcc33]/60 shadow-lg'
+                ? 'bg-[#fcf8f0] border-[#8c1c1c] shadow-xs'
                 : player.rank <= 3
-                ? 'bg-[#181827] border-[#363650]'
-                : 'bg-[#151522] border-[#252536]'
+                ? 'bg-[#ffffff] border-[#ebd8c1] shadow-xs'
+                : 'bg-[#ffffff] border-[#f0e4d2]'
             }`}
           >
             <div className="flex items-center gap-4">
@@ -146,20 +146,20 @@ export const Leaderboard: React.FC = () => {
 
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h4 className="font-bebas text-xl text-white tracking-wide">
+                  <h4 className="font-bebas text-xl text-[#2a1b12] tracking-wide">
                     {player.playerName}
                   </h4>
-                  <span className="px-2 py-0.5 rounded-md bg-[#252338] text-[11px] text-[#ffcc33] border border-[#ffcc33]/30 font-medium">
+                  <span className="px-2 py-0.5 rounded-md bg-[#f4edd9] text-[11px] text-[#8c1c1c] border border-[#ebd8c1] font-semibold">
                     {player.badge}
                   </span>
                 </div>
 
-                <div className="text-xs text-[#9ca3af] flex items-center gap-2 mt-0.5">
-                  <span className="text-[#cbd5e1] font-semibold">{player.favoriteGame}</span>
+                <div className="text-xs text-[#786555] flex items-center gap-2 mt-0.5">
+                  <span className="text-[#3d2e24] font-semibold">{player.favoriteGame}</span>
                   {player.recentAchievement && (
                     <>
                       <span>•</span>
-                      <span className="text-[#a1a1aa] italic">{player.recentAchievement}</span>
+                      <span className="text-[#665547] italic">{player.recentAchievement}</span>
                     </>
                   )}
                 </div>
@@ -168,19 +168,19 @@ export const Leaderboard: React.FC = () => {
 
             <div className="flex items-center gap-4 sm:gap-6 self-end sm:self-auto text-right">
               <div>
-                <span className="text-[10px] uppercase text-[#9ca3af] tracking-wider block font-mono">
+                <span className="text-[10px] uppercase text-[#786555] tracking-wider block font-mono font-semibold">
                   {t('leaderboard.wins')}
                 </span>
-                <span className="font-bebas text-2xl text-white tracking-wider">
+                <span className="font-bebas text-2xl text-[#2a1b12] tracking-wider">
                   {player.wins} 🏆
                 </span>
               </div>
 
-              <div className="pl-4 border-l border-[#2e2e44]">
-                <span className="text-[10px] uppercase text-[#ffcc33] tracking-wider block font-mono">
+              <div className="pl-4 border-l border-[#ebd8c1]">
+                <span className="text-[10px] uppercase text-[#8c1c1c] tracking-wider block font-mono font-semibold">
                   {t('leaderboard.points')}
                 </span>
-                <span className="font-mono text-xl font-black text-[#ffcc33]">
+                <span className="font-mono text-xl font-black text-[#8c1c1c]">
                   {player.points} PTS
                 </span>
               </div>
@@ -189,9 +189,9 @@ export const Leaderboard: React.FC = () => {
         ))}
       </div>
 
-      <div className="mt-5 p-3.5 rounded-xl bg-[#191928] border border-[#2d2d42] flex items-center justify-between text-xs text-[#cbd5e1]">
+      <div className="mt-5 p-3.5 rounded-xl bg-[#f4edd9] border border-[#ebd8c1] flex items-center justify-between text-xs text-[#3d2e24]">
         <span className="flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-[#ffcc33]" />
+          <Sparkles className="w-4 h-4 text-[#8c1c1c]" />
           <span>Want to climb the ranks? Play any verified match at Mister Bubble and tell the Game Master to record your score!</span>
         </span>
       </div>

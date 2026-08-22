@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { OrderDetails, ReviewItem, DailySpecial, AnnouncementItem, LeaderboardEntry } from '../types';
+import { OrderDetails, ReviewItem, DailySpecial, LeaderboardEntry } from '../types';
 import { CAFE_CONFIG } from '../data/cafeConfig';
 import { MENU_ITEMS, MENU_CATEGORIES } from '../data/menuData';
 import { useLanguage } from '../context/LanguageContext';
@@ -44,8 +44,8 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [pinError, setPinError] = useState(false);
   
-  // Tabs: orders | availability | special | announcements | leaderboard | seasonal | reviews
-  const [activeTab, setActiveTab] = useState<'orders' | 'availability' | 'special' | 'announcements' | 'leaderboard' | 'seasonal' | 'reviews'>('orders');
+  // Tabs: orders | availability | special | leaderboard | seasonal | reviews
+  const [activeTab, setActiveTab] = useState<'orders' | 'availability' | 'special' | 'leaderboard' | 'seasonal' | 'reviews'>('orders');
 
   // Data states
   const [orders, setOrders] = useState<OrderDetails[]>([]);
@@ -61,18 +61,11 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
     specialPrice: 650,
     badge: 'Special Duo Promo',
   });
-  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [seasonalEnabled, setSeasonalEnabled] = useState<boolean>(false);
 
   // Search filter for item availability tab
   const [availabilitySearch, setAvailabilitySearch] = useState('');
-
-  // Announcement form modal state
-  const [newAnnTitle, setNewAnnTitle] = useState('');
-  const [newAnnContent, setNewAnnContent] = useState('');
-  const [newAnnCategory, setNewAnnCategory] = useState<'Drink Drop' | 'Tournament' | 'Holiday' | 'Community'>('Drink Drop');
-  const [newAnnPinned, setNewAnnPinned] = useState(false);
 
   // Leaderboard player add state
   const [newPlayerName, setNewPlayerName] = useState('');
@@ -103,10 +96,6 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
       // Daily Special
       const specialStr = localStorage.getItem('mb_daily_special');
       if (specialStr) setDailySpecial(JSON.parse(specialStr));
-
-      // Announcements
-      const annStr = localStorage.getItem('mb_announcements');
-      if (annStr) setAnnouncements(JSON.parse(annStr));
 
       // Leaderboard
       const leadStr = localStorage.getItem('mb_leaderboard');
@@ -162,33 +151,6 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
   const handleSaveDailySpecial = () => {
     localStorage.setItem('mb_daily_special', JSON.stringify(dailySpecial));
     alert("Daily Special Banner settings saved successfully!");
-  };
-
-  // 4. Announcements
-  const handleAddAnnouncement = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newAnnTitle.trim() || !newAnnContent.trim()) return;
-
-    const newAnn: AnnouncementItem = {
-      id: `ann-${Date.now()}`,
-      date: new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-      category: newAnnCategory,
-      title: newAnnTitle,
-      content: newAnnContent,
-      pinned: newAnnPinned,
-    };
-
-    const updated = [newAnn, ...announcements];
-    setAnnouncements(updated);
-    localStorage.setItem('mb_announcements', JSON.stringify(updated));
-    setNewAnnTitle('');
-    setNewAnnContent('');
-  };
-
-  const handleDeleteAnnouncement = (annId: string) => {
-    const updated = announcements.filter((a) => a.id !== annId);
-    setAnnouncements(updated);
-    localStorage.setItem('mb_announcements', JSON.stringify(updated));
   };
 
   // 5. Leaderboard
@@ -368,17 +330,6 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                   }`}
                 >
                   {t('staff.tabSpecial')}
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('announcements')}
-                  className={`px-3 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === 'announcements'
-                      ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
-                      : 'text-[#9ca3af] hover:text-white'
-                  }`}
-                >
-                  {t('staff.tabAnnouncements')} ({announcements.length})
                 </button>
 
                 <button
@@ -700,101 +651,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              {/* TAB 4: Announcements Feed Manager */}
-              {activeTab === 'announcements' && (
-                <div className="space-y-6">
-                  {/* Create New Announcement Form */}
-                  <form onSubmit={handleAddAnnouncement} className="p-4 rounded-2xl bg-[#171725] border border-[#27273a] space-y-3">
-                    <h4 className="font-bebas text-xl text-[#ffcc33] tracking-wide">
-                      Post New Café Announcement
-                    </h4>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="sm:col-span-2">
-                        <input
-                          type="text"
-                          placeholder="Announcement Title (e.g. New Sparkling Piña Colada Drop)..."
-                          value={newAnnTitle}
-                          onChange={(e) => setNewAnnTitle(e.target.value)}
-                          className="w-full px-3.5 py-2 rounded-xl bg-[#12121b] border border-[#2d2d42] text-xs text-white outline-none focus:border-[#ffcc33]"
-                        />
-                      </div>
-
-                      <div>
-                        <select
-                          value={newAnnCategory}
-                          onChange={(e) => setNewAnnCategory(e.target.value as any)}
-                          className="w-full px-3 py-2 rounded-xl bg-[#12121b] border border-[#2d2d42] text-xs text-white outline-none"
-                        >
-                          <option value="Drink Drop">Drink Drop</option>
-                          <option value="Tournament">Tournament</option>
-                          <option value="Holiday">Holiday / Ramadan</option>
-                          <option value="Community">Community</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <textarea
-                      rows={2}
-                      placeholder="Announcement body content..."
-                      value={newAnnContent}
-                      onChange={(e) => setNewAnnContent(e.target.value)}
-                      className="w-full px-3.5 py-2 rounded-xl bg-[#12121b] border border-[#2d2d42] text-xs text-white outline-none focus:border-[#ffcc33]"
-                    />
-
-                    <div className="flex items-center justify-between pt-1">
-                      <label className="flex items-center gap-2 cursor-pointer text-xs text-[#cbd5e1]">
-                        <input
-                          type="checkbox"
-                          checked={newAnnPinned}
-                          onChange={(e) => setNewAnnPinned(e.target.checked)}
-                          className="w-4 h-4 accent-[#ffcc33]"
-                        />
-                        <span>Pin to top</span>
-                      </label>
-
-                      <button
-                        type="submit"
-                        className="px-4 py-2 rounded-xl bg-[#ffcc33] hover:bg-[#ffe066] text-[#0f0f14] font-bebas text-base tracking-wider font-bold transition-all"
-                      >
-                        PUBLISH ANNOUNCEMENT
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* List of Announcements */}
-                  <div className="space-y-3">
-                    {announcements.map((ann) => (
-                      <div
-                        key={ann.id}
-                        className="p-3.5 rounded-2xl bg-[#161622] border border-[#2a2a3e] flex items-center justify-between gap-3"
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="px-2 py-0.5 rounded bg-[#27273c] text-[10px] font-bold font-mono text-[#ffcc33]">
-                              {ann.category}
-                            </span>
-                            <span className="font-bold text-sm text-white">{ann.title}</span>
-                            {ann.pinned && (
-                              <span className="text-[10px] text-amber-400 font-bold">★ PINNED</span>
-                            )}
-                          </div>
-                          <p className="text-xs text-[#9ca3af] mt-1">{ann.content}</p>
-                        </div>
-
-                        <button
-                          onClick={() => handleDeleteAnnouncement(ann.id)}
-                          className="p-2 rounded-xl bg-[#28181c] hover:bg-red-900 text-red-400 hover:text-white transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 5: Tournament Leaderboard Manager */}
+              {/* TAB 4: Tournament Leaderboard Manager */}
               {activeTab === 'leaderboard' && (
                 <div className="space-y-6">
                   {/* Add Player Form */}

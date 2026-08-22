@@ -65,7 +65,7 @@ export const Gallery: React.FC = () => {
   return (
     <section
       id="gallery"
-      className="relative py-20 lg:py-28 bg-[#0a0a0d] overflow-hidden border-t border-[#1e1e2c]"
+      className="relative py-20 lg:py-28 bg-[#fcf8f0] overflow-hidden border-t border-[#ebd8c1]"
     >
       <MonsteraLeaf position="top-left" opacity={0.3} />
       <MonsteraLeaf position="bottom-right" opacity={0.25} />
@@ -74,11 +74,11 @@ export const Gallery: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-10">
           <TornBanner
-            title="REAL CAFÉ &amp; MOMENTS GALLERY"
+            title="REAL CAFÉ & MOMENTS GALLERY"
             titleArabic="معرض الصور والأجواء الحقيقية"
             gradient="from-[#b3231c] via-[#8c1c1c] to-[#601212]"
           />
-          <p className="max-w-xl mx-auto text-sm sm:text-base text-[#9ca3af] mt-3">
+          <p className="max-w-xl mx-auto text-sm sm:text-base text-[#786555] mt-3 font-medium">
             Real snapshots from Mister Bubble in Mostaganem — refreshing boba drinks, sweet takoyaki treats, board games on the mezzanine, and our beloved resident cats.
           </p>
         </div>
@@ -89,10 +89,10 @@ export const Gallery: React.FC = () => {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-4 py-1.5 rounded-xl font-bebas text-lg tracking-wider whitespace-nowrap transition-all ${
+              className={`px-4 py-1.5 rounded-xl font-bebas text-lg tracking-wider whitespace-nowrap transition-all shadow-sm ${
                 selectedCategory === cat.id
-                  ? 'bg-gradient-to-r from-[#b3231c] to-[#8c1c1c] text-white shadow-[0_0_12px_rgba(179,35,28,0.5)] border border-[#ffcc33]/60'
-                  : 'bg-[#14141e] text-[#9ca3af] hover:text-white hover:bg-[#1c1c28] border border-[#232332]'
+                  ? 'bg-[#8c1c1c] text-white border border-[#ffcc33]/40'
+                  : 'bg-[#ffffff] text-[#554336] hover:text-[#2a1b12] hover:bg-[#f4edd9] border border-[#ebd8c1]'
               }`}
             >
               {cat.label}
@@ -106,7 +106,7 @@ export const Gallery: React.FC = () => {
             <div
               key={item.id}
               onClick={() => openLightbox(idx)}
-              className="relative group rounded-2xl overflow-hidden cursor-pointer border border-[#242436] hover:border-[#f2a900]/60 bg-[#12121a] shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              className="relative group rounded-2xl overflow-hidden cursor-pointer border border-[#ebd8c1] hover:border-[#8c1c1c] bg-[#ffffff] shadow-sm hover:shadow-md transition-all duration-300 transform hover:-translate-y-1"
             >
               <div className="relative aspect-[4/3] w-full overflow-hidden">
                 <CafeImage
@@ -118,20 +118,20 @@ export const Gallery: React.FC = () => {
                 />
 
                 {/* Overlay on hover */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-[#0d0d12]/40 to-transparent opacity-0 group-hover:opacity-90 transition-opacity duration-300 flex flex-col justify-between p-5 pointer-events-none">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1b140e]/90 via-[#1b140e]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-between p-5 pointer-events-none">
                   <div className="flex justify-end">
-                    <span className="p-2 rounded-lg bg-[#111118]/80 text-[#ffcc33] backdrop-blur-sm">
+                    <span className="p-2 rounded-lg bg-[#ffffff]/20 text-[#ffcc33] backdrop-blur-sm">
                       <Maximize2 className="w-4 h-4" />
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-[#ffcc33] uppercase tracking-widest px-2 py-0.5 rounded bg-[#b3231c]">
+                    <span className="text-[10px] font-bold text-white uppercase tracking-widest px-2 py-0.5 rounded bg-[#8c1c1c]">
                       {item.category}
                     </span>
                     <h4 className="font-bebas text-2xl text-white tracking-wide mt-1 leading-tight">
                       {item.title}
                     </h4>
-                    <p className="text-xs text-[#cbd5e1] line-clamp-2 mt-0.5">
+                    <p className="text-xs text-[#ebd8c1] line-clamp-2 mt-0.5">
                       {item.caption}
                     </p>
                   </div>
@@ -147,7 +147,7 @@ export const Gallery: React.FC = () => {
             href={CAFE_CONFIG.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#14141f] border border-[#ffcc33]/30 hover:border-[#ffcc33] text-[#f3f4f6] hover:text-[#ffcc33] font-bebas text-xl tracking-wider transition-all"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-[#ffffff] border border-[#ebd8c1] hover:border-[#8c1c1c] text-[#2a1b12] hover:text-[#8c1c1c] font-bebas text-xl tracking-wider transition-all shadow-sm"
           >
             <span>Follow {CAFE_CONFIG.instagramHandle} on Instagram (4,400+ Followers)</span>
           </a>

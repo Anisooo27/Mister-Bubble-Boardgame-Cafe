@@ -73,8 +73,22 @@
     <script type="module" src="/src/main.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
+        // Guard against infinite reload loops
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+
         window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+          navigator.serviceWorker.register('/sw.js').then((registration) => {
+            // Check for service worker updates periodically or when active
+            if (registration) {
+              registration.update().catch(() => {});
+            }
+          }).catch(() => {});
         });
       }
     </script>

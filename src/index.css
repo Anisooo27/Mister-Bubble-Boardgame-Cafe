@@ -2,23 +2,43 @@
 
 @layer base {
   :root {
-    --color-bg-dark: #0d0d10;
-    --color-bg-card: #15151b;
-    --color-bg-card-hover: #1c1c24;
+    /* Primary Bright & Warm Palette (Reflecting Real Cafe Architecture) */
+    --color-bg-primary: #faf6ee;
+    --color-bg-secondary: #f4edd9;
+    --color-bg-card: #ffffff;
+    --color-bg-card-hover: #fdfbf7;
+    --color-bg-card-warm: #fcf8f0;
+    
+    /* Wood Tones */
+    --color-oak-light: #ebd8c1;
+    --color-oak-medium: #c8935f;
+    --color-oak-dark: #8e5b2e;
+    
+    /* Greenery (Sage / Wisteria Foliage) */
+    --color-sage: #6b7d4f;
+    --color-sage-light: #8a9a6a;
+    --color-sage-bg: #eef2e6;
+    
+    /* Brand Crimson & Gold Accents */
     --color-red-primary: #8c1c1c;
     --color-red-bright: #b3231c;
-    --color-red-glow: #e6392f;
     --color-gold: #f2a900;
     --color-gold-bright: #ffcc33;
     --color-gold-amber: #e69500;
-    --color-jade: #2f9e44;
-    --color-text-main: #f3f4f6;
-    --color-text-muted: #9ca3af;
+    
+    /* Purple Neon Accent (Used Sparingly) */
+    --color-neon-purple: #a855f7;
+    --color-neon-magenta: #c026d3;
+    
+    /* High Contrast Text */
+    --color-text-title: #2a1b12;
+    --color-text-body: #3d2e24;
+    --color-text-muted: #786555;
   }
 
   body {
-    background-color: #0c0c0f;
-    color: #f3f4f6;
+    background-color: #faf6ee;
+    color: #2a1b12;
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     overflow-x: hidden;
   }
@@ -38,24 +58,33 @@
 }
 
 /* Custom Asian & Cafe Visual Elements */
-.bg-grunge {
-  background-image: 
-    radial-gradient(circle at 50% 0%, rgba(179, 35, 28, 0.15), transparent 40%),
-    radial-gradient(circle at 100% 60%, rgba(242, 169, 0, 0.08), transparent 35%),
-    radial-gradient(circle at 0% 80%, rgba(47, 158, 68, 0.06), transparent 30%);
+.bg-cream-warm {
+  background-color: #faf6ee;
 }
 
-.bg-pattern-grid {
+.bg-cream-card {
+  background-color: #ffffff;
+  border: 1px solid #ebd8c1;
+}
+
+.bg-grunge-warm {
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(200, 147, 95, 0.08), transparent 45%),
+    radial-gradient(circle at 100% 60%, rgba(242, 169, 0, 0.06), transparent 40%),
+    radial-gradient(circle at 0% 80%, rgba(107, 125, 79, 0.06), transparent 35%);
+}
+
+.bg-pattern-grid-warm {
   background-size: 32px 32px;
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
-                    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgba(142, 91, 46, 0.05) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(142, 91, 46, 0.05) 1px, transparent 1px);
 }
 
 /* Chinese Geometric Key Fret Border for Price Medallions */
 .chinese-fret-border {
   background: radial-gradient(circle, #9b1c1c 0%, #6e0e0e 100%);
   border: 2px solid #f2a900;
-  box-shadow: 0 0 12px rgba(242, 169, 0, 0.35), inset 0 0 6px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 12px rgba(140, 28, 28, 0.25), inset 0 0 4px rgba(0, 0, 0, 0.4);
 }
 
 /* Torn paper / ribbon banner styles */
@@ -72,15 +101,19 @@
   clip-path: polygon(4% 0%, 96% 0%, 100% 50%, 96% 100%, 4% 100%, 0% 50%);
 }
 
-/* Gold Text Glow */
-.text-gold-glow {
-  color: #ffcc33;
-  text-shadow: 0 0 12px rgba(255, 204, 51, 0.5), 0 2px 4px rgba(0,0,0,0.8);
+/* Warm Oak Borders & Accents */
+.border-oak-subtle {
+  border-color: #ebd8c1;
 }
 
-.text-red-glow {
-  color: #ff4d4d;
-  text-shadow: 0 0 12px rgba(220, 38, 38, 0.6);
+.border-oak-warm {
+  border-color: #c8935f;
+}
+
+/* Gold Text Accent */
+.text-gold-accent {
+  color: #b47a00;
+  font-weight: 700;
 }
 
 /* Custom scrollbar */
@@ -88,10 +121,10 @@
   width: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d0d10;
+  background: #f4edd9;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2a35;
+  background: #c8935f;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {

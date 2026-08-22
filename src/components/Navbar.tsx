@@ -4,26 +4,19 @@ import {
   Menu as MenuIcon,
   X,
   MapPin,
-  ShoppingBag,
   Award,
-  Calendar,
   Lock,
-  Globe,
   ChevronRight
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { AppLanguage } from '../types';
 
 interface NavbarProps {
-  onOpenTray: () => void;
-  trayCount: number;
   onOpenLoyalty: () => void;
   onOpenStaff: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
-  onOpenTray,
-  trayCount,
   onOpenLoyalty,
   onOpenStaff,
 }) => {
@@ -74,8 +67,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       id="main-navbar"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-[#0d0d10]/95 backdrop-blur-md border-b border-[#2a2a35] py-2.5 shadow-[0_4px_20px_rgba(0,0,0,0.8)]'
-          : 'bg-gradient-to-b from-[#0d0d10]/90 to-transparent py-4'
+          ? 'bg-[#faf6ee]/95 backdrop-blur-md border-b border-[#ebd8c1] py-2.5 shadow-md'
+          : 'bg-gradient-to-b from-[#faf6ee]/90 to-transparent py-4'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,7 +88,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <a
                 key={link.label}
                 href={link.href}
-                className="px-2.5 py-1.5 text-xs font-medium text-[#d1d5db] hover:text-[#ffcc33] hover:bg-[#1a1a24] rounded-lg transition-all whitespace-nowrap"
+                className="px-2.5 py-1.5 text-xs font-semibold text-[#3d2e24] hover:text-[#8c1c1c] hover:bg-[#f4edd9] rounded-lg transition-all whitespace-nowrap"
               >
                 {link.label}
               </a>
@@ -103,15 +96,15 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Right Action Items */}
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden sm:flex items-center gap-2.5">
             {/* Language Switcher */}
-            <div className="flex items-center p-1 bg-[#161622] rounded-xl border border-[#2c2c3e]">
+            <div className="flex items-center p-1 bg-[#f4edd9] rounded-xl border border-[#ebd8c1]">
               <button
                 onClick={() => handleLanguageChange('en')}
                 className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${
                   language === 'en'
                     ? 'bg-[#8c1c1c] text-[#ffcc33]'
-                    : 'text-[#9ca3af] hover:text-white'
+                    : 'text-[#665547] hover:text-[#2a1b12]'
                 }`}
                 title="English"
               >
@@ -122,7 +115,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className={`px-2 py-0.5 rounded-lg text-xs font-bold transition-all ${
                   language === 'fr'
                     ? 'bg-[#8c1c1c] text-[#ffcc33]'
-                    : 'text-[#9ca3af] hover:text-white'
+                    : 'text-[#665547] hover:text-[#2a1b12]'
                 }`}
                 title="Français"
               >
@@ -133,7 +126,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 className={`px-2.5 py-0.5 rounded-lg text-xs font-bold font-arabic transition-all ${
                   language === 'ar'
                     ? 'bg-[#8c1c1c] text-[#ffcc33]'
-                    : 'text-[#9ca3af] hover:text-white'
+                    : 'text-[#665547] hover:text-[#2a1b12]'
                 }`}
                 title="العربية"
               >
@@ -145,47 +138,31 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={onOpenLoyalty}
               id="nav-loyalty-btn"
-              className="px-3 py-2 bg-[#1a1826] hover:bg-[#252033] border border-[#ffcc33]/40 text-[#ffcc33] rounded-xl transition-all flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider"
+              className="px-3 py-2 bg-[#ffffff] hover:bg-[#fcf8f0] border border-[#c8935f] text-[#8e5b2e] rounded-xl transition-all flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider shadow-sm"
               title="Open VIP Loyalty Stamp Card"
             >
-              <Award className="w-4 h-4 text-[#ffcc33]" />
+              <Award className="w-4 h-4 text-[#8e5b2e]" />
               <span className="hidden md:inline">{t('nav.loyalty')}</span>
-            </button>
-
-            {/* Cart / Order Trigger Button */}
-            <button
-              onClick={onOpenTray}
-              id="nav-order-now-btn"
-              className="px-3.5 py-2 bg-[#1a1a24] hover:bg-[#252533] border border-[#f2a900]/40 hover:border-[#f2a900] text-[#ffcc33] rounded-xl transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-wider shadow-sm active:scale-95"
-              title="Open your cart & digital order tray"
-            >
-              <ShoppingBag className="w-4 h-4" />
-              <span>{t('nav.orderNow')}</span>
-              {trayCount > 0 && (
-                <span className="w-5 h-5 rounded-full bg-[#b3231c] text-white text-xs font-bold flex items-center justify-center border border-[#ffcc33]/60 shadow-[0_0_8px_#b3231c]">
-                  {trayCount}
-                </span>
-              )}
             </button>
 
             {/* Visit Us CTA */}
             <a
               href="#location"
               id="nav-visit-btn"
-              className="px-3.5 py-2 bg-gradient-to-r from-[#b3231c] to-[#8c1c1c] hover:from-[#d12a22] hover:to-[#9e1f1f] text-white font-bebas text-base tracking-wider rounded-xl shadow-[0_0_15px_rgba(179,35,28,0.4)] border border-[#ffcc33]/40 transition-all flex items-center gap-1.5 active:scale-95 whitespace-nowrap"
+              className="px-4 py-2 bg-[#8c1c1c] hover:bg-[#a62222] text-white font-bebas text-base tracking-wider rounded-xl shadow-md border border-[#ffcc33]/30 transition-all flex items-center gap-1.5 active:scale-95 whitespace-nowrap"
             >
               <MapPin className="w-3.5 h-3.5 text-[#ffcc33]" />
               {t('nav.visitUs')}
             </a>
           </div>
 
-          {/* Mobile Hamburger & Language & Cart Button */}
+          {/* Mobile Hamburger & Language Button */}
           <div className="flex items-center gap-2 xl:hidden">
             {/* Mobile Language Pill */}
-            <div className="flex items-center p-0.5 bg-[#161622] rounded-lg border border-[#2c2c3e]">
+            <div className="flex items-center p-0.5 bg-[#f4edd9] rounded-lg border border-[#ebd8c1]">
               <button
                 onClick={() => handleLanguageChange(language === 'en' ? 'fr' : language === 'fr' ? 'ar' : 'en')}
-                className="px-2 py-1 text-[11px] font-bold text-[#ffcc33]"
+                className="px-2 py-1 text-[11px] font-bold text-[#8c1c1c]"
               >
                 {language.toUpperCase()}
               </button>
@@ -193,32 +170,19 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={onOpenLoyalty}
-              className="p-2 bg-[#1a1826] border border-[#ffcc33]/40 text-[#ffcc33] rounded-xl text-sm"
+              className="p-2 bg-[#ffffff] border border-[#c8935f] text-[#8e5b2e] rounded-xl text-sm shadow-sm"
               title="Loyalty Stamp Card"
             >
               <Award className="w-4 h-4" />
             </button>
 
             <button
-              onClick={onOpenTray}
-              className="relative p-2 bg-[#1a1a24] border border-[#f2a900]/40 text-[#ffcc33] rounded-xl text-sm"
-              aria-label="Order Cart"
-            >
-              <ShoppingBag className="w-5 h-5" />
-              {trayCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-[#b3231c] text-white text-[10px] font-bold flex items-center justify-center border border-[#ffcc33]">
-                  {trayCount}
-                </span>
-              )}
-            </button>
-
-            <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               id="mobile-menu-toggle"
-              className="p-2 bg-[#1a1a24] hover:bg-[#252533] border border-[#2a2a36] text-[#f3f4f6] rounded-xl transition-colors"
+              className="p-2 bg-[#ffffff] hover:bg-[#f4edd9] border border-[#ebd8c1] text-[#2a1b12] rounded-xl transition-colors shadow-sm"
               aria-label="Toggle navigation menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6 text-[#ffcc33]" /> : <MenuIcon className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-6 h-6 text-[#8c1c1c]" /> : <MenuIcon className="w-6 h-6 text-[#2a1b12]" />}
             </button>
           </div>
         </div>
@@ -226,14 +190,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-[#0e0e14] border-b border-[#2a2a35] px-4 pt-3 pb-6 space-y-2 shadow-2xl animate-in slide-in-from-top duration-200">
+        <div className="xl:hidden bg-[#faf6ee] border-b border-[#ebd8c1] px-4 pt-3 pb-6 space-y-2 shadow-2xl animate-in slide-in-from-top duration-200">
           {/* Status info bar */}
-          <div className="flex items-center justify-between p-3 bg-[#15151f] rounded-xl border border-[#252536] mb-3">
+          <div className="flex items-center justify-between p-3 bg-[#ffffff] rounded-xl border border-[#ebd8c1] mb-3">
             <div className="flex items-center gap-2">
-              <span className={`w-2.5 h-2.5 rounded-full ${isOpenNow ? 'bg-emerald-400 animate-pulse' : 'bg-amber-500'}`} />
-              <span className="text-xs font-semibold text-white">{isOpenNow ? 'Open Now (9AM – 12AM)' : 'Opens at 9:00 AM'}</span>
+              <span className={`w-2.5 h-2.5 rounded-full ${isOpenNow ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
+              <span className="text-xs font-semibold text-[#2a1b12]">{isOpenNow ? 'Open Now (9AM – 12AM)' : 'Opens at 9:00 AM'}</span>
             </div>
-            <span className="text-[11px] text-[#ffcc33] font-medium">Salamandre</span>
+            <span className="text-[11px] text-[#8e5b2e] font-bold">Salamandre</span>
           </div>
 
           <div className="grid grid-cols-1 gap-1">
@@ -242,52 +206,50 @@ export const Navbar: React.FC<NavbarProps> = ({
                 key={link.label}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-between px-4 py-2 text-sm font-medium text-[#e5e7eb] hover:text-[#ffcc33] hover:bg-[#1a1a28] rounded-lg transition-colors"
+                className="flex items-center justify-between px-4 py-2 text-sm font-semibold text-[#3d2e24] hover:text-[#8c1c1c] hover:bg-[#f4edd9] rounded-lg transition-colors"
               >
                 <span>{link.label}</span>
-                <ChevronRight className="w-4 h-4 text-[#6b7280]" />
+                <ChevronRight className="w-4 h-4 text-[#786555]" />
               </a>
             ))}
           </div>
 
           {/* Quick Actions in Mobile Drawer */}
-          <div className="pt-3 border-t border-[#252536] space-y-2">
+          <div className="pt-3 border-t border-[#ebd8c1] space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   onOpenLoyalty();
                 }}
-                className="py-2.5 bg-[#1b1828] text-[#ffcc33] font-bold text-xs uppercase tracking-wider text-center rounded-xl border border-[#ffcc33]/40 flex items-center justify-center gap-1.5"
+                className="py-2.5 bg-[#ffffff] text-[#8e5b2e] font-bold text-xs uppercase tracking-wider text-center rounded-xl border border-[#c8935f] flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <Award className="w-4 h-4" />
                 <span>{t('nav.loyalty')}</span>
               </button>
 
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenTray();
-                }}
-                className="py-2.5 bg-[#1e1e2d] text-[#ffcc33] font-bold text-xs uppercase tracking-wider text-center rounded-xl border border-[#f2a900]/40 flex items-center justify-center gap-1.5"
+              <a
+                href="#location"
+                onClick={() => setMobileMenuOpen(false)}
+                className="py-2.5 bg-[#8c1c1c] text-white font-bold text-xs uppercase tracking-wider text-center rounded-xl border border-[#ffcc33]/30 flex items-center justify-center gap-1.5 shadow-sm"
               >
-                <ShoppingBag className="w-4 h-4" />
-                <span>{t('nav.orderNow')} ({trayCount})</span>
-              </button>
+                <MapPin className="w-4 h-4 text-[#ffcc33]" />
+                <span>{t('nav.visitUs')}</span>
+              </a>
             </div>
 
-            <div className="flex items-center justify-between pt-2 border-t border-[#1f1f2e] text-xs text-[#9ca3af]">
+            <div className="flex items-center justify-between pt-2 border-t border-[#ebd8c1] text-xs text-[#786555]">
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
                   onOpenStaff();
                 }}
-                className="flex items-center gap-1 hover:text-[#ffcc33]"
+                className="flex items-center gap-1 hover:text-[#8c1c1c] font-medium"
               >
                 <Lock className="w-3.5 h-3.5" />
                 <span>{t('nav.staff')}</span>
               </button>
-              <span>Mostaganem, DZ</span>
+              <span className="font-medium">Mostaganem, DZ</span>
             </div>
           </div>
         </div>

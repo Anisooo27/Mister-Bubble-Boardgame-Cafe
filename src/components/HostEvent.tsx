@@ -11,7 +11,8 @@ import {
   Gift,
   Music,
   Coffee,
-  Check
+  Check,
+  Camera
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -53,7 +54,7 @@ export const HostEvent: React.FC = () => {
         particleCount: 80,
         spread: 60,
         origin: { y: 0.6 },
-        colors: ['#ffcc33', '#8c1c1c', '#ffffff'],
+        colors: ['#f2a900', '#8c1c1c', '#ffffff'],
       });
     } catch {
       // ignore
@@ -63,18 +64,18 @@ export const HostEvent: React.FC = () => {
   };
 
   return (
-    <section id="host-event" className="py-20 lg:py-28 bg-[#0c0c10] border-t border-[#20202e] relative overflow-hidden">
+    <section id="host-event" className="py-20 lg:py-28 bg-[#f4edd9] border-t border-[#ebd8c1] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#8c1c1c]/30 border border-[#f2a900]/40 text-[#ffcc33] text-xs font-semibold mb-3">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-[#ffffff] border border-[#c8935f] text-[#8c1c1c] text-xs font-bold font-bebas tracking-wider mb-3 shadow-xs">
             <PartyPopper className="w-3.5 h-3.5" />
             <span>PRIVATE CELEBRATIONS &amp; TOURNAMENTS</span>
           </div>
 
-          <h2 className="font-bebas text-4xl sm:text-6xl lg:text-7xl text-white tracking-widest leading-none drop-shadow">
+          <h2 className="font-bebas text-4xl sm:text-6xl lg:text-7xl text-[#8c1c1c] tracking-widest leading-none drop-shadow-xs">
             {t('host.title')}
           </h2>
-          <p className="max-w-2xl mx-auto text-xs sm:text-base text-[#9ca3af] mt-2">
+          <p className="max-w-2xl mx-auto text-xs sm:text-base text-[#665547] mt-2 font-medium">
             {t('host.subtitle')}
           </p>
         </div>
@@ -82,7 +83,7 @@ export const HostEvent: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left Column: Perks and Photo Highlights */}
           <div className="lg:col-span-6 space-y-6">
-            <div className="relative rounded-3xl overflow-hidden border-2 border-[#ffcc33]/30 shadow-2xl h-64 sm:h-72">
+            <div className="relative rounded-3xl overflow-hidden border-2 border-[#ebd8c1] shadow-md h-64 sm:h-72">
               <CafeImage
                 src="/photos/event-mezzanine-lounge.jpg"
                 filename="event-mezzanine-lounge.jpg"
@@ -92,7 +93,7 @@ export const HostEvent: React.FC = () => {
                 className="w-full h-full object-cover"
                 aspectRatio="aspect-auto h-full w-full"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-transparent to-transparent opacity-80 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#140e0a]/80 via-transparent to-transparent pointer-events-none" />
               <div className="absolute bottom-4 left-4 right-4 pointer-events-none">
                 <span className="text-[10px] uppercase font-bold text-[#ffcc33] tracking-widest block drop-shadow">
                   Exclusive Mezzanine Space
@@ -103,43 +104,43 @@ export const HostEvent: React.FC = () => {
 
             {/* 4 Feature Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              <div className="p-4 rounded-2xl bg-[#161522] border border-[#272538] flex items-start gap-3">
+              <div className="p-4 rounded-2xl bg-[#ffffff] border border-[#ebd8c1] flex items-start gap-3 shadow-xs">
                 <div className="w-8 h-8 rounded-xl bg-[#8c1c1c] text-[#ffcc33] flex items-center justify-center flex-shrink-0">
                   <Users className="w-4 h-4" />
                 </div>
                 <div>
-                  <h5 className="font-bold text-white text-sm">{t('host.feature1')}</h5>
-                  <p className="text-[11px] text-[#9ca3af] mt-0.5">Accommodates groups of up to 25 people comfortably.</p>
+                  <h5 className="font-bold text-[#2a1b12] text-sm">{t('host.feature1')}</h5>
+                  <p className="text-[11px] text-[#786555] mt-0.5">Accommodates groups of up to 25 people comfortably.</p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#161522] border border-[#272538] flex items-start gap-3">
+              <div className="p-4 rounded-2xl bg-[#ffffff] border border-[#ebd8c1] flex items-start gap-3 shadow-xs">
                 <div className="w-8 h-8 rounded-xl bg-[#8c1c1c] text-[#ffcc33] flex items-center justify-center flex-shrink-0">
                   <Gift className="w-4 h-4" />
                 </div>
                 <div>
-                  <h5 className="font-bold text-white text-sm">{t('host.feature2')}</h5>
-                  <p className="text-[11px] text-[#9ca3af] mt-0.5">Tournaments, trivia, and curated party games.</p>
+                  <h5 className="font-bold text-[#2a1b12] text-sm">{t('host.feature2')}</h5>
+                  <p className="text-[11px] text-[#786555] mt-0.5">Tournaments, trivia, and curated party games.</p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#161522] border border-[#272538] flex items-start gap-3">
+              <div className="p-4 rounded-2xl bg-[#ffffff] border border-[#ebd8c1] flex items-start gap-3 shadow-xs">
                 <div className="w-8 h-8 rounded-xl bg-[#8c1c1c] text-[#ffcc33] flex items-center justify-center flex-shrink-0">
                   <Coffee className="w-4 h-4" />
                 </div>
                 <div>
-                  <h5 className="font-bold text-white text-sm">{t('host.feature3')}</h5>
-                  <p className="text-[11px] text-[#9ca3af] mt-0.5">Bubble tea towers, custom ade dispensers & waffle skewers.</p>
+                  <h5 className="font-bold text-[#2a1b12] text-sm">{t('host.feature3')}</h5>
+                  <p className="text-[11px] text-[#786555] mt-0.5">Bubble tea towers, custom ade dispensers & waffle skewers.</p>
                 </div>
               </div>
 
-              <div className="p-4 rounded-2xl bg-[#161522] border border-[#272538] flex items-start gap-3">
+              <div className="p-4 rounded-2xl bg-[#ffffff] border border-[#ebd8c1] flex items-start gap-3 shadow-xs">
                 <div className="w-8 h-8 rounded-xl bg-[#8c1c1c] text-[#ffcc33] flex items-center justify-center flex-shrink-0">
                   <Music className="w-4 h-4" />
                 </div>
                 <div>
-                  <h5 className="font-bold text-white text-sm">{t('host.feature4')}</h5>
-                  <p className="text-[11px] text-[#9ca3af] mt-0.5">Personalized music playlist & photo-ready backdrops.</p>
+                  <h5 className="font-bold text-[#2a1b12] text-sm">{t('host.feature4')}</h5>
+                  <p className="text-[11px] text-[#786555] mt-0.5">Personalized music playlist & photo-ready backdrops.</p>
                 </div>
               </div>
             </div>
@@ -147,32 +148,32 @@ export const HostEvent: React.FC = () => {
 
           {/* Right Column: Event Inquiry Form */}
           <div className="lg:col-span-6">
-            <div className="rounded-3xl bg-gradient-to-br from-[#181625] via-[#14121f] to-[#100f18] border-2 border-[#ffcc33]/40 p-6 sm:p-8 shadow-2xl">
+            <div className="rounded-3xl bg-[#ffffff] border-2 border-[#ebd8c1] p-6 sm:p-8 shadow-md">
               {isSuccess ? (
                 <div className="text-center py-8 space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-500 text-emerald-400 flex items-center justify-center mx-auto">
+                  <div className="w-16 h-16 rounded-full bg-emerald-100 border-2 border-emerald-500 text-emerald-700 flex items-center justify-center mx-auto">
                     <Check className="w-8 h-8" />
                   </div>
-                  <h3 className="font-bebas text-3xl text-white">EVENT INQUIRY RECEIVED!</h3>
-                  <p className="text-xs sm:text-sm text-[#cbd5e1] max-w-md mx-auto">
+                  <h3 className="font-bebas text-3xl text-[#2a1b12]">EVENT INQUIRY RECEIVED!</h3>
+                  <p className="text-xs sm:text-sm text-[#665547] max-w-md mx-auto">
                     Thank you {name}! Our event coordinator will get in touch with you shortly on {phone} or via Instagram DM to tailor your group package.
                   </p>
                   <button
                     onClick={() => setIsSuccess(false)}
-                    className="py-2.5 px-6 rounded-xl bg-[#232034] text-white text-xs font-bold uppercase tracking-wider"
+                    className="py-2.5 px-6 rounded-xl bg-[#f4edd9] hover:bg-[#ebd8c1] text-[#8c1c1c] text-xs font-bold uppercase tracking-wider transition-colors"
                   >
                     Submit Another Inquiry
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleBookingSubmit} className="space-y-4">
-                  <h4 className="font-bebas text-2xl text-[#ffcc33] border-b border-[#2d283c] pb-2">
+                  <h4 className="font-bebas text-2xl text-[#8c1c1c] border-b border-[#ebd8c1] pb-2">
                     Request an Event Package
                   </h4>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-[#cbd5e1] mb-1">
+                      <label className="block text-xs font-semibold text-[#3d2e24] mb-1">
                         Organizer Name *
                       </label>
                       <input
@@ -181,12 +182,12 @@ export const HostEvent: React.FC = () => {
                         placeholder="Your Name"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#14121c] border border-[#2b273b] text-sm text-white focus:outline-none focus:border-[#ffcc33]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#fcf8f0] border border-[#ebd8c1] text-sm text-[#2a1b12] focus:outline-none focus:border-[#8c1c1c]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-[#cbd5e1] mb-1">
+                      <label className="block text-xs font-semibold text-[#3d2e24] mb-1">
                         Phone Number *
                       </label>
                       <input
@@ -195,20 +196,20 @@ export const HostEvent: React.FC = () => {
                         placeholder="0550 12 34 56"
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#14121c] border border-[#2b273b] text-sm text-white focus:outline-none focus:border-[#ffcc33]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#fcf8f0] border border-[#ebd8c1] text-sm text-[#2a1b12] focus:outline-none focus:border-[#8c1c1c]"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-semibold text-[#cbd5e1] mb-1">
+                      <label className="block text-xs font-semibold text-[#3d2e24] mb-1">
                         Event Type
                       </label>
                       <select
                         value={eventType}
                         onChange={(e) => setEventType(e.target.value as any)}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#14121c] border border-[#2b273b] text-sm text-white focus:outline-none focus:border-[#ffcc33]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#fcf8f0] border border-[#ebd8c1] text-sm text-[#2a1b12] focus:outline-none focus:border-[#8c1c1c]"
                       >
                         <option value="Birthday Party">Birthday Party</option>
                         <option value="Game Tournament">Game Tournament</option>
@@ -218,13 +219,13 @@ export const HostEvent: React.FC = () => {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-[#cbd5e1] mb-1">
+                      <label className="block text-xs font-semibold text-[#3d2e24] mb-1">
                         Estimated Group Size
                       </label>
                       <select
                         value={estimatedGuests}
                         onChange={(e) => setEstimatedGuests(Number(e.target.value))}
-                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#14121c] border border-[#2b273b] text-sm text-white focus:outline-none focus:border-[#ffcc33]"
+                        className="w-full px-3.5 py-2.5 rounded-xl bg-[#fcf8f0] border border-[#ebd8c1] text-sm text-[#2a1b12] focus:outline-none focus:border-[#8c1c1c]"
                       >
                         <option value={6}>6–10 Guests</option>
                         <option value={15}>11–18 Guests</option>
@@ -234,7 +235,7 @@ export const HostEvent: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#cbd5e1] mb-1">
+                    <label className="block text-xs font-semibold text-[#3d2e24] mb-1">
                       Preferred Date &amp; Time *
                     </label>
                     <input
@@ -243,12 +244,12 @@ export const HostEvent: React.FC = () => {
                       placeholder="e.g. Next Saturday, 6:00 PM – 9:00 PM"
                       value={preferredDate}
                       onChange={(e) => setPreferredDate(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#14121c] border border-[#2b273b] text-sm text-white focus:outline-none focus:border-[#ffcc33]"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#fcf8f0] border border-[#ebd8c1] text-sm text-[#2a1b12] focus:outline-none focus:border-[#8c1c1c]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-[#cbd5e1] mb-1">
+                    <label className="block text-xs font-semibold text-[#3d2e24] mb-1">
                       Special Catering or Game Requests
                     </label>
                     <textarea
@@ -256,16 +257,16 @@ export const HostEvent: React.FC = () => {
                       placeholder="e.g. Need 15x Boba cups, birthday cake setup, and Uno/Catan tournament rules."
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#14121c] border border-[#2b273b] text-sm text-white focus:outline-none focus:border-[#ffcc33] resize-none"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#fcf8f0] border border-[#ebd8c1] text-sm text-[#2a1b12] focus:outline-none focus:border-[#8c1c1c] resize-none"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-[#b3231c] to-[#8c1c1c] hover:from-[#cf2920] hover:to-[#9e1f1f] text-white font-bebas text-xl tracking-wider border border-[#ffcc33]/60 shadow-lg transition-all flex items-center justify-center gap-2"
+                    className="w-full py-3.5 px-6 rounded-xl bg-[#8c1c1c] hover:bg-[#a62222] text-white font-bebas text-xl tracking-wider border border-[#ffcc33]/40 shadow-md transition-all flex items-center justify-center gap-2"
                   >
                     <Sparkles className="w-5 h-5 text-[#ffcc33]" />
-                    <span>{t('host.btnInquire')}</span>
+                    <span>REQUEST EVENT PACKAGE</span>
                   </button>
                 </form>
               )}
