@@ -1,5 +1,5 @@
 // Service Worker for Mister Bubble PWA with Auto-Update & Network-First Strategy
-const BUILD_VERSION = 'v2026.08.22-build3';
+const BUILD_VERSION = 'v2026.08.22-build4';
 const CACHE_NAME = `mister-bubble-${BUILD_VERSION}`;
 const STATIC_ASSETS = ['/', '/index.html', '/manifest.json'];
 
