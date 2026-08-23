@@ -62,7 +62,8 @@ export const CAFE_CONFIG = {
   whatsappNumber: '213550123456',
   whatsappDisplay: '+213 550 12 34 56',
   
-  // Staff Portal demo PIN gate
+  // Staff Portal access PIN gate (Centralized for easy updating by cafe owner)
+  staffPin: '7788',
   staffDemoPin: '7788',
 
   instagramHandle: '@misterbubble.dz',

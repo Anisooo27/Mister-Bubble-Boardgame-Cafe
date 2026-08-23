@@ -9,6 +9,7 @@ import { WeatherNudge } from './WeatherNudge';
 import { CafeImage } from './CafeImage';
 import { ItemDetailModal } from './ItemDetailModal';
 import { useLanguage } from '../context/LanguageContext';
+import { api } from '../services/api';
 import {
   Search,
   Sparkles,
@@ -34,13 +35,11 @@ export const Menu: React.FC = () => {
 
   // Load sold-out items
   useEffect(() => {
-    const loadSoldOut = () => {
+    const loadSoldOut = async () => {
       try {
-        const saved = localStorage.getItem('mb_sold_out_items');
-        if (saved) {
-          setSoldOutItemIds(JSON.parse(saved));
-        } else {
-          setSoldOutItemIds([]);
+        const remote = await api.getSoldOutItemIds();
+        if (Array.isArray(remote)) {
+          setSoldOutItemIds(remote);
         }
       } catch {
         // ignore

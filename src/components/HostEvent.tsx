@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { EventBooking } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { CafeImage } from './CafeImage';
+import { api } from '../services/api';
 import {
   PartyPopper,
   Sparkles,
@@ -26,28 +27,18 @@ export const HostEvent: React.FC = () => {
   const [notes, setNotes] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const handleBookingSubmit = (e: React.FormEvent) => {
+  const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim() || !preferredDate.trim()) return;
 
-    const booking: EventBooking = {
-      id: `event-${Date.now()}`,
+    await api.submitEventInquiry({
       name: name.trim(),
       phone: phone.trim(),
       eventType,
       estimatedGuests: Number(estimatedGuests) || 8,
       preferredDate: preferredDate.trim(),
       notes: notes.trim() || undefined,
-      createdAt: new Date().toISOString(),
-    };
-
-    try {
-      const stored = localStorage.getItem('mb_event_bookings') || '[]';
-      const list = JSON.parse(stored);
-      localStorage.setItem('mb_event_bookings', JSON.stringify([booking, ...list]));
-    } catch {
-      // ignore
-    }
+    });
 
     try {
       confetti({

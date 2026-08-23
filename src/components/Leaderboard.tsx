@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LeaderboardEntry } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { api } from '../services/api';
 import { Trophy, Medal, Crown, Flame, Award, Shield, Sparkles } from 'lucide-react';
 
 const DEFAULT_LEADERBOARD: LeaderboardEntry[] = [
@@ -61,16 +62,17 @@ export const Leaderboard: React.FC = () => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>(DEFAULT_LEADERBOARD);
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem('mb_leaderboard');
-      if (saved) {
-        setLeaderboard(JSON.parse(saved));
-      } else {
-        localStorage.setItem('mb_leaderboard', JSON.stringify(DEFAULT_LEADERBOARD));
+    const fetchLeaderboard = async () => {
+      try {
+        const remote = await api.getLeaderboard();
+        if (remote && remote.length > 0) {
+          setLeaderboard(remote);
+        }
+      } catch (e) {
+        console.error(e);
       }
-    } catch (e) {
-      console.error(e);
-    }
+    };
+    fetchLeaderboard();
   }, []);
 
   const getRankBadge = (rank: number) => {

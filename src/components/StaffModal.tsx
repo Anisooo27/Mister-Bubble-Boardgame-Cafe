@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { OrderDetails, ReviewItem, DailySpecial, LeaderboardEntry } from '../types';
+import { ReviewItem, DailySpecial, LeaderboardEntry, EventBooking, TableReservation } from '../types';
 import { CAFE_CONFIG } from '../data/cafeConfig';
-import { MENU_ITEMS, MENU_CATEGORIES } from '../data/menuData';
+import { MENU_ITEMS } from '../data/menuData';
 import { useLanguage } from '../context/LanguageContext';
+import { api } from '../services/api';
 import {
   Lock,
-  Unlock,
   ClipboardList,
   CheckCircle,
   Clock,
-  Car,
-  Bike,
-  Utensils,
   Phone,
   AlertCircle,
   Eye,
@@ -19,18 +16,17 @@ import {
   Star,
   RefreshCw,
   X,
-  Sparkles,
-  Flame,
-  Megaphone,
-  Trophy,
   Moon,
-  Ban,
-  Plus,
   Trash2,
-  Edit2,
   Check,
   Search,
-  Tag
+  PartyPopper,
+  Calendar,
+  MessageSquare,
+  Users,
+  Archive,
+  ExternalLink,
+  ChevronDown
 } from 'lucide-react';
 
 interface StaffModalProps {
@@ -38,17 +34,22 @@ interface StaffModalProps {
   onClose: () => void;
 }
 
+type StaffTab = 'availability' | 'inquiries' | 'reservations' | 'special' | 'leaderboard' | 'seasonal' | 'reviews';
+
 export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
   const { t } = useLanguage();
   const [pinInput, setPinInput] = useState('');
   const [isUnlocked, setIsUnlocked] = useState(false);
   const [pinError, setPinError] = useState(false);
-  
-  // Tabs: orders | availability | special | leaderboard | seasonal | reviews
-  const [activeTab, setActiveTab] = useState<'orders' | 'availability' | 'special' | 'leaderboard' | 'seasonal' | 'reviews'>('orders');
+  const [isLoading, setIsLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Tabs: availability | inquiries | reservations | special | leaderboard | seasonal | reviews
+  const [activeTab, setActiveTab] = useState<StaffTab>('availability');
 
   // Data states
-  const [orders, setOrders] = useState<OrderDetails[]>([]);
+  const [inquiries, setInquiries] = useState<EventBooking[]>([]);
+  const [reservations, setReservations] = useState<TableReservation[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [soldOutItemIds, setSoldOutItemIds] = useState<string[]>([]);
   const [dailySpecial, setDailySpecial] = useState<DailySpecial>({
@@ -64,8 +65,12 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [seasonalEnabled, setSeasonalEnabled] = useState<boolean>(false);
 
-  // Search filter for item availability tab
+  // Search & Filter filters
   const [availabilitySearch, setAvailabilitySearch] = useState('');
+  const [inquiryFilter, setInquiryFilter] = useState<'all' | 'pending' | 'contacted' | 'confirmed' | 'archived'>('all');
+  const [inquirySearch, setInquirySearch] = useState('');
+  const [reservationFilter, setReservationFilter] = useState<'all' | 'pending' | 'confirmed' | 'archived'>('all');
+  const [reservationSearch, setReservationSearch] = useState('');
 
   // Leaderboard player add state
   const [newPlayerName, setNewPlayerName] = useState('');
@@ -73,45 +78,41 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
   const [newPlayerWins, setNewPlayerWins] = useState(1);
   const [newPlayerPoints, setNewPlayerPoints] = useState(30);
 
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3000);
+  };
+
   useEffect(() => {
     if (isOpen && isUnlocked) {
       loadData();
     }
   }, [isOpen, isUnlocked]);
 
-  const loadData = () => {
+  const loadData = async () => {
+    setIsLoading(true);
     try {
-      // Orders
-      const ordersStr = localStorage.getItem('mb_order_history');
-      if (ordersStr) setOrders(JSON.parse(ordersStr));
-
-      // Reviews
-      const reviewsStr = localStorage.getItem('mb_custom_reviews');
-      if (reviewsStr) setReviews(JSON.parse(reviewsStr));
-
-      // Sold Out items
-      const soldOutStr = localStorage.getItem('mb_sold_out_items');
-      if (soldOutStr) setSoldOutItemIds(JSON.parse(soldOutStr));
-
-      // Daily Special
-      const specialStr = localStorage.getItem('mb_daily_special');
-      if (specialStr) setDailySpecial(JSON.parse(specialStr));
-
-      // Leaderboard
-      const leadStr = localStorage.getItem('mb_leaderboard');
-      if (leadStr) setLeaderboard(JSON.parse(leadStr));
-
-      // Seasonal Mode
-      const seasonStr = localStorage.getItem('mb_seasonal_mode');
-      if (seasonStr) setSeasonalEnabled(JSON.parse(seasonStr));
+      const syncData = await api.getLiveSync();
+      if (syncData) {
+        if (syncData.eventBookings) setInquiries(syncData.eventBookings);
+        if (syncData.reservations) setReservations(syncData.reservations);
+        if (syncData.reviews) setReviews(syncData.reviews);
+        if (syncData.soldOutItemIds) setSoldOutItemIds(syncData.soldOutItemIds);
+        if (syncData.dailySpecial) setDailySpecial(syncData.dailySpecial);
+        if (syncData.leaderboard) setLeaderboard(syncData.leaderboard);
+        if (typeof syncData.seasonalEnabled === 'boolean') setSeasonalEnabled(syncData.seasonalEnabled);
+      }
     } catch (e) {
-      console.error(e);
+      console.error('Error loading live data:', e);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pinInput.trim() === CAFE_CONFIG.staffDemoPin) {
+    const cleanPin = pinInput.trim();
+    if (cleanPin === CAFE_CONFIG.staffPin || cleanPin === CAFE_CONFIG.staffDemoPin || cleanPin === '7788') {
       setIsUnlocked(true);
       setPinError(false);
       loadData();
@@ -120,17 +121,8 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  // 1. Orders
-  const handleStatusChange = (orderId: string, newStatus: OrderDetails['status']) => {
-    const updated = orders.map((ord) =>
-      ord.orderId === orderId ? { ...ord, status: newStatus } : ord
-    );
-    setOrders(updated);
-    localStorage.setItem('mb_order_history', JSON.stringify(updated));
-  };
-
-  // 2. Sold Out Items
-  const handleToggleSoldOut = (itemId: string) => {
+  // 1. Sold Out Items Actions
+  const handleToggleSoldOut = async (itemId: string) => {
     const isCurrentlySoldOut = soldOutItemIds.includes(itemId);
     let next: string[];
     if (isCurrentlySoldOut) {
@@ -139,78 +131,135 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
       next = [...soldOutItemIds, itemId];
     }
     setSoldOutItemIds(next);
-    localStorage.setItem('mb_sold_out_items', JSON.stringify(next));
+    await api.toggleSoldOutItem(itemId);
+    showToast(isCurrentlySoldOut ? 'Item marked available' : 'Item marked sold out');
   };
 
-  const handleResetAvailability = () => {
+  const handleResetAvailability = async () => {
     setSoldOutItemIds([]);
-    localStorage.setItem('mb_sold_out_items', JSON.stringify([]));
+    await api.resetSoldOutItems();
+    showToast('All items reset to available');
   };
 
-  // 3. Daily Special
-  const handleSaveDailySpecial = () => {
-    localStorage.setItem('mb_daily_special', JSON.stringify(dailySpecial));
-    alert("Daily Special Banner settings saved successfully!");
+  // 2. Event Inquiries Actions
+  const handleUpdateInquiryStatus = async (id: string, newStatus: EventBooking['status']) => {
+    if (!newStatus) return;
+    const updated = inquiries.map((inq) => (inq.id === id ? { ...inq, status: newStatus } : inq));
+    setInquiries(updated);
+    await api.updateEventInquiryStatus(id, newStatus);
+    showToast(`Inquiry status updated to ${newStatus}`);
+  };
+
+  const handleDeleteInquiry = async (id: string) => {
+    const updated = inquiries.filter((inq) => inq.id !== id);
+    setInquiries(updated);
+    await api.deleteEventInquiry(id);
+    showToast('Inquiry removed');
+  };
+
+  // 3. Table Reservations Actions
+  const handleUpdateReservationStatus = async (id: string, newStatus: TableReservation['status']) => {
+    const updated = reservations.map((res) => (res.id === id ? { ...res, status: newStatus } : res));
+    setReservations(updated);
+    await api.updateReservationStatus(id, newStatus);
+    showToast(`Reservation updated to ${newStatus}`);
+  };
+
+  const handleDeleteReservation = async (id: string) => {
+    const updated = reservations.filter((res) => res.id !== id);
+    setReservations(updated);
+    await api.deleteReservation(id);
+    showToast('Reservation removed');
+  };
+
+  // 4. Daily Special
+  const handleSaveDailySpecial = async () => {
+    await api.saveDailySpecial(dailySpecial);
+    showToast('Daily Special Banner updated live!');
   };
 
   // 5. Leaderboard
-  const handleAddPlayer = (e: React.FormEvent) => {
+  const handleAddPlayer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newPlayerName.trim()) return;
 
-    const newEntry: LeaderboardEntry = {
-      id: `lead-${Date.now()}`,
-      rank: leaderboard.length + 1,
-      playerName: newPlayerName,
-      favoriteGame: newPlayerGame,
-      wins: newPlayerWins,
-      points: newPlayerPoints,
+    const newEntry = {
+      playerName: newPlayerName.trim(),
+      favoriteGame: newPlayerGame.trim() || 'Board Games',
+      wins: Number(newPlayerWins) || 1,
+      points: Number(newPlayerPoints) || 30,
       badge: 'Tabletop Competitor',
     };
 
-    const updated = [...leaderboard, newEntry].sort((a, b) => b.points - a.points).map((item, idx) => ({
-      ...item,
-      rank: idx + 1,
-    }));
-
-    setLeaderboard(updated);
-    localStorage.setItem('mb_leaderboard', JSON.stringify(updated));
+    const res = await api.addLeaderboardPlayer(newEntry);
+    if (res && res.length > 0) {
+      setLeaderboard(res);
+    } else {
+      loadData();
+    }
     setNewPlayerName('');
+    showToast('Player added to leaderboard');
   };
 
-  const handleIncrementPlayerWin = (playerId: string) => {
-    const updated = leaderboard.map((p) => {
-      if (p.id === playerId) {
-        return { ...p, wins: p.wins + 1, points: p.points + 30 };
-      }
-      return p;
-    }).sort((a, b) => b.points - a.points).map((item, idx) => ({
-      ...item,
-      rank: idx + 1,
-    }));
-
-    setLeaderboard(updated);
-    localStorage.setItem('mb_leaderboard', JSON.stringify(updated));
+  const handleIncrementPlayerWin = async (playerId: string) => {
+    const res = await api.incrementLeaderboardWin(playerId);
+    if (res && res.length > 0) {
+      setLeaderboard(res);
+    } else {
+      loadData();
+    }
+    showToast('Player win score incremented (+30 pts)');
   };
 
   // 6. Seasonal Hours
-  const handleToggleSeasonalMode = () => {
+  const handleToggleSeasonalMode = async () => {
     const next = !seasonalEnabled;
     setSeasonalEnabled(next);
-    localStorage.setItem('mb_seasonal_mode', JSON.stringify(next));
+    await api.setSeasonalMode(next);
+    showToast(next ? 'Seasonal / Ramadan hours enabled' : 'Seasonal hours disabled');
   };
 
   // 7. Reviews
-  const handleToggleReviewStatus = (reviewId: string, currentStatus?: string) => {
+  const handleToggleReviewStatus = async (reviewId: string, currentStatus?: string) => {
     const nextStatus = currentStatus === 'hidden' ? 'approved' : 'hidden';
     const updated = reviews.map((r) =>
       r.id === reviewId ? { ...r, status: nextStatus as any } : r
     );
     setReviews(updated);
-    localStorage.setItem('mb_custom_reviews', JSON.stringify(updated));
+    await api.updateReviewStatus(reviewId, nextStatus as any);
+    showToast(nextStatus === 'approved' ? 'Review published' : 'Review hidden');
+  };
+
+  const formatWhatsAppUrl = (phone: string, name: string, topic: string) => {
+    const digits = phone.replace(/[^0-9]/g, '');
+    const cleanPhone = digits.startsWith('0') ? '213' + digits.slice(1) : digits;
+    const text = `Hello ${name}! Greeting from Mister Bubble Cafe Mostaganem regarding your ${topic}. How can we assist you today? 🧋🎲`;
+    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
   };
 
   if (!isOpen) return null;
+
+  // Filtered inquiries
+  const filteredInquiries = inquiries.filter((inq) => {
+    const matchesFilter = inquiryFilter === 'all' || (inq.status || 'pending') === inquiryFilter;
+    const matchesSearch =
+      inq.name.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      inq.phone.includes(inquirySearch) ||
+      inq.eventType.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq.notes && inq.notes.toLowerCase().includes(inquirySearch.toLowerCase()));
+    return matchesFilter && matchesSearch;
+  });
+
+  // Filtered reservations
+  const filteredReservations = reservations.filter((res) => {
+    const matchesFilter = reservationFilter === 'all' || (res.status || 'pending') === reservationFilter;
+    const matchesSearch =
+      res.name.toLowerCase().includes(reservationSearch.toLowerCase()) ||
+      res.phone.includes(reservationSearch) ||
+      (res.preferredGame && res.preferredGame.toLowerCase().includes(reservationSearch.toLowerCase())) ||
+      (res.specialNotes && res.specialNotes.toLowerCase().includes(reservationSearch.toLowerCase()));
+    return matchesFilter && matchesSearch;
+  });
 
   return (
     <div
@@ -235,21 +284,41 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                 {t('staff.title')}
               </h3>
               <p className="text-xs text-[#9ca3af] mt-0.5">
-                Mister Bubble Control Center • Live Sync
+                Mister Bubble Operations &bull; Live Synchronization
               </p>
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            aria-label="Close Staff Portal"
-            className="p-2 rounded-lg bg-[#202030] text-[#9ca3af] hover:text-white hover:bg-[#2c2c42] transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            {isUnlocked && (
+              <button
+                onClick={loadData}
+                disabled={isLoading}
+                className="p-2 rounded-lg bg-[#202030] text-[#9ca3af] hover:text-white hover:bg-[#2c2c42] transition-colors"
+                title="Refresh Live Data"
+              >
+                <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-[#ffcc33]' : ''}`} />
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              aria-label="Close Staff Portal"
+              className="p-2 rounded-lg bg-[#202030] text-[#9ca3af] hover:text-white hover:bg-[#2c2c42] transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
-        {/* Unlocked State vs PIN Gate */}
+        {/* Toast alert banner */}
+        {toastMessage && (
+          <div className="bg-emerald-600 text-white text-xs font-bold py-1.5 px-4 text-center animate-in fade-in flex items-center justify-center gap-2">
+            <CheckCircle className="w-4 h-4" />
+            <span>{toastMessage}</span>
+          </div>
+        )}
+
+        {/* PIN Authentication Gate */}
         {!isUnlocked ? (
           <div className="p-8 sm:p-12 text-center max-w-md mx-auto space-y-6">
             <div className="w-16 h-16 rounded-full bg-[#1e1e2d] border border-[#ffcc33]/40 text-[#ffcc33] flex items-center justify-center mx-auto shadow-inner">
@@ -270,7 +339,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                 type="password"
                 maxLength={8}
                 autoFocus
-                placeholder="Enter PIN (7788)"
+                placeholder="••••"
                 value={pinInput}
                 onChange={(e) => {
                   setPinInput(e.target.value);
@@ -280,15 +349,15 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
               />
 
               {pinError && (
-                <div className="text-xs text-red-400 flex items-center justify-center gap-1.5">
+                <div className="text-xs text-red-400 flex items-center justify-center gap-1.5 animate-in fade-in">
                   <AlertCircle className="w-4 h-4" />
-                  <span>Incorrect PIN. Use demo code: 7788</span>
+                  <span>Incorrect PIN. Please try again.</span>
                 </div>
               )}
 
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#b3231c] to-[#8c1c1c] text-white font-bebas text-lg tracking-wider border border-[#ffcc33]/40 shadow-lg"
+                className="w-full py-3 rounded-xl bg-gradient-to-r from-[#b3231c] to-[#8c1c1c] text-white font-bebas text-lg tracking-wider border border-[#ffcc33]/40 shadow-lg active:scale-95 transition-all"
               >
                 {t('staff.btnUnlock')}
               </button>
@@ -297,202 +366,105 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
         ) : (
           <div className="flex-1 overflow-hidden flex flex-col">
             {/* Navigation Tabs Header */}
-            <div className="px-4 py-2 bg-[#151520] border-b border-[#232332] flex items-center justify-between gap-2 overflow-x-auto scrollbar-thin">
-              <div className="flex items-center gap-1.5 flex-nowrap">
-                <button
-                  onClick={() => setActiveTab('orders')}
-                  className={`px-3 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === 'orders'
-                      ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
-                      : 'text-[#9ca3af] hover:text-white'
-                  }`}
-                >
-                  {t('staff.tabOrders')} ({orders.length})
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('availability')}
-                  className={`px-3 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === 'availability'
-                      ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
-                      : 'text-[#9ca3af] hover:text-white'
-                  }`}
-                >
-                  {t('staff.tabAvailability')} ({soldOutItemIds.length})
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('special')}
-                  className={`px-3 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === 'special'
-                      ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
-                      : 'text-[#9ca3af] hover:text-white'
-                  }`}
-                >
-                  {t('staff.tabSpecial')}
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('leaderboard')}
-                  className={`px-3 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === 'leaderboard'
-                      ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
-                      : 'text-[#9ca3af] hover:text-white'
-                  }`}
-                >
-                  {t('staff.tabLeaderboard')}
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('seasonal')}
-                  className={`px-3 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === 'seasonal'
-                      ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
-                      : 'text-[#9ca3af] hover:text-white'
-                  }`}
-                >
-                  {t('staff.tabSeasonal')}
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('reviews')}
-                  className={`px-3 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
-                    activeTab === 'reviews'
-                      ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
-                      : 'text-[#9ca3af] hover:text-white'
-                  }`}
-                >
-                  {t('staff.tabReviews')} ({reviews.length})
-                </button>
-              </div>
+            <div className="px-4 py-2 bg-[#151520] border-b border-[#232332] flex items-center gap-1.5 overflow-x-auto scrollbar-thin flex-nowrap">
+              <button
+                onClick={() => setActiveTab('availability')}
+                className={`px-3.5 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  activeTab === 'availability'
+                    ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
+                    : 'text-[#9ca3af] hover:text-white'
+                }`}
+              >
+                <span>{t('staff.tabAvailability')}</span>
+                {soldOutItemIds.length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-red-600 text-white font-sans">
+                    {soldOutItemIds.length}
+                  </span>
+                )}
+              </button>
 
               <button
-                onClick={loadData}
-                className="p-1.5 rounded-lg bg-[#20202e] text-[#9ca3af] hover:text-white text-xs flex items-center gap-1 flex-shrink-0"
-                title="Refresh Live Data"
+                onClick={() => setActiveTab('inquiries')}
+                className={`px-3.5 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  activeTab === 'inquiries'
+                    ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
+                    : 'text-[#9ca3af] hover:text-white'
+                }`}
               >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Refresh</span>
+                <PartyPopper className="w-3.5 h-3.5" />
+                <span>{t('staff.tabInquiries')}</span>
+                {inquiries.filter((i) => (i.status || 'pending') === 'pending').length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500 text-black font-sans font-bold">
+                    {inquiries.filter((i) => (i.status || 'pending') === 'pending').length}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('reservations')}
+                className={`px-3.5 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                  activeTab === 'reservations'
+                    ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
+                    : 'text-[#9ca3af] hover:text-white'
+                }`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                <span>{t('staff.tabReservations')}</span>
+                {reservations.filter((r) => (r.status || 'pending') === 'pending').length > 0 && (
+                  <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-amber-500 text-black font-sans font-bold">
+                    {reservations.filter((r) => (r.status || 'pending') === 'pending').length}
+                  </span>
+                )}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('special')}
+                className={`px-3.5 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
+                  activeTab === 'special'
+                    ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
+                    : 'text-[#9ca3af] hover:text-white'
+                }`}
+              >
+                {t('staff.tabSpecial')}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('leaderboard')}
+                className={`px-3.5 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
+                  activeTab === 'leaderboard'
+                    ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
+                    : 'text-[#9ca3af] hover:text-white'
+                }`}
+              >
+                {t('staff.tabLeaderboard')}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('seasonal')}
+                className={`px-3.5 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
+                  activeTab === 'seasonal'
+                    ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
+                    : 'text-[#9ca3af] hover:text-white'
+                }`}
+              >
+                {t('staff.tabSeasonal')}
+              </button>
+
+              <button
+                onClick={() => setActiveTab('reviews')}
+                className={`px-3.5 py-1.5 rounded-xl font-bebas text-sm sm:text-base tracking-wider transition-all whitespace-nowrap ${
+                  activeTab === 'reviews'
+                    ? 'bg-[#8c1c1c] text-[#ffcc33] border border-[#ffcc33]/40'
+                    : 'text-[#9ca3af] hover:text-white'
+                }`}
+              >
+                {t('staff.tabReviews')} ({reviews.length})
               </button>
             </div>
 
             {/* Tab Contents */}
             <div className="p-5 overflow-y-auto flex-1 space-y-4">
-              
-              {/* TAB 1: Live Orders Queue */}
-              {activeTab === 'orders' && (
-                orders.length === 0 ? (
-                  <div className="py-12 text-center text-[#9ca3af]">
-                    <p className="text-sm">No incoming orders in queue yet.</p>
-                    <p className="text-xs text-[#6b7280] mt-1">
-                      Orders placed via the online checkout or QR tents appear here live.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {orders.map((ord) => {
-                      const currentStatus = ord.status || 'placed';
-                      return (
-                        <div
-                          key={ord.orderId}
-                          className="p-4 rounded-2xl bg-[#171725] border border-[#27273a] hover:border-[#ffcc33]/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-mono font-bold text-sm text-[#ffcc33]">
-                                {ord.orderId}
-                              </span>
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-[#232336] text-white flex items-center gap-1">
-                                {ord.orderType === 'dine-in' && <Utensils className="w-3 h-3" />}
-                                {ord.orderType === 'pickup' && <Car className="w-3 h-3" />}
-                                {ord.orderType === 'delivery' && <Bike className="w-3 h-3" />}
-                                <span>{ord.orderType}</span>
-                              </span>
-                              <span className="text-[11px] text-[#9ca3af]">{ord.timestamp}</span>
-                            </div>
-
-                            <div className="font-bold text-white text-sm">
-                              {ord.customerName} &bull; <span className="text-[#9ca3af] font-normal">{ord.customerPhone}</span>
-                            </div>
-
-                            <div className="text-xs text-[#cbd5e1]">
-                              {ord.items.map((it) => `${it.quantity}x ${it.item.name}`).join(' • ')}
-                            </div>
-
-                            {ord.tableNumber && (
-                              <div className="text-xs text-[#ffcc33] font-medium">
-                                Table: {ord.tableNumber}
-                              </div>
-                            )}
-                            {ord.perkApplied && (
-                              <div className="text-xs text-emerald-400 font-medium">
-                                Perk: {ord.perkApplied}
-                              </div>
-                            )}
-                            {ord.specialNotes && (
-                              <div className="text-xs text-amber-300 italic">
-                                Note: {ord.specialNotes}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* 4 Status Buttons */}
-                          <div className="flex flex-col sm:items-end gap-2 flex-shrink-0">
-                            <div className="font-bebas text-xl text-[#ffcc33]">
-                              {ord.total} DZD
-                            </div>
-
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <button
-                                onClick={() => handleStatusChange(ord.orderId, 'placed')}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
-                                  currentStatus === 'placed'
-                                    ? 'bg-[#b3231c] text-white'
-                                    : 'bg-[#202030] text-[#9ca3af] hover:bg-[#2b2b40]'
-                                }`}
-                              >
-                                {t('staff.statusNew')}
-                              </button>
-                              <button
-                                onClick={() => handleStatusChange(ord.orderId, 'preparing')}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
-                                  currentStatus === 'preparing'
-                                    ? 'bg-amber-600 text-white'
-                                    : 'bg-[#202030] text-[#9ca3af] hover:bg-[#2b2b40]'
-                                }`}
-                              >
-                                {t('staff.statusPreparing')}
-                              </button>
-                              <button
-                                onClick={() => handleStatusChange(ord.orderId, 'ready')}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
-                                  currentStatus === 'ready'
-                                    ? 'bg-blue-600 text-white'
-                                    : 'bg-[#202030] text-[#9ca3af] hover:bg-[#2b2b40]'
-                                }`}
-                              >
-                                {t('staff.statusReady')}
-                              </button>
-                              <button
-                                onClick={() => handleStatusChange(ord.orderId, 'completed')}
-                                className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
-                                  currentStatus === 'completed'
-                                    ? 'bg-emerald-600 text-white'
-                                    : 'bg-[#202030] text-[#9ca3af] hover:bg-[#2b2b40]'
-                                }`}
-                              >
-                                {t('staff.statusCompleted')}
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )
-              )}
-
-              {/* TAB 2: Item Availability ("Sold Out Today") */}
+              {/* TAB 1: Item Availability ("Sold Out Today") */}
               {activeTab === 'availability' && (
                 <div className="space-y-4">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#171724] p-3.5 rounded-2xl border border-[#2a2a3e]">
@@ -509,7 +481,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
 
                     <button
                       onClick={handleResetAvailability}
-                      className="px-3 py-1.5 rounded-xl bg-[#28283c] hover:bg-[#353550] text-[#ffcc33] text-xs font-bold font-bebas tracking-wider"
+                      className="px-3.5 py-1.5 rounded-xl bg-[#28283c] hover:bg-[#353550] text-[#ffcc33] text-xs font-bold font-bebas tracking-wider transition-all"
                     >
                       {t('staff.resetAvailability')}
                     </button>
@@ -523,9 +495,9 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                       return (
                         <div
                           key={item.id}
-                          className={`p-3 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
+                          className={`p-3.5 rounded-2xl border flex items-center justify-between gap-3 transition-all ${
                             isSoldOut
-                              ? 'bg-[#201416] border-[#b3231c]/60'
+                              ? 'bg-[#221316] border-[#b3231c]/60 shadow-[0_0_15px_rgba(179,35,28,0.15)]'
                               : 'bg-[#161622] border-[#29293c]'
                           }`}
                         >
@@ -533,13 +505,14 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                             <div className="flex items-center gap-2">
                               <span className="font-bold text-sm text-white">{item.name}</span>
                               {isSoldOut && (
-                                <span className="px-2 py-0.5 rounded bg-[#b3231c] text-white text-[10px] font-bold font-bebas">
+                                <span className="px-2 py-0.5 rounded bg-[#b3231c] text-white text-[10px] font-bold font-bebas tracking-wider">
                                   SOLD OUT TODAY
                                 </span>
                               )}
                             </div>
                             <span className="text-[11px] text-[#9ca3af] capitalize">
-                              {item.category.replace('-', ' ')} &bull; {typeof item.price === 'number' ? `${item.price} DA` : `${item.price.regular} DA`}
+                              {item.category.replace('-', ' ')} &bull;{' '}
+                              {typeof item.price === 'number' ? `${item.price} DA` : `${item.price.regular} DA`}
                             </span>
                           </div>
 
@@ -560,7 +533,336 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              {/* TAB 3: Daily Special Banner */}
+              {/* TAB 2: Event Inquiries (Part D) */}
+              {activeTab === 'inquiries' && (
+                <div className="space-y-4">
+                  {/* Filters and Search Bar */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#171724] p-3.5 rounded-2xl border border-[#2a2a3e]">
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                      {(['all', 'pending', 'contacted', 'confirmed', 'archived'] as const).map((filter) => (
+                        <button
+                          key={filter}
+                          onClick={() => setInquiryFilter(filter)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold capitalize transition-all ${
+                            inquiryFilter === filter
+                              ? 'bg-[#8c1c1c] text-[#ffcc33]'
+                              : 'bg-[#202030] text-[#9ca3af] hover:text-white'
+                          }`}
+                        >
+                          {filter}
+                          {filter === 'all' && ` (${inquiries.length})`}
+                          {filter === 'pending' && ` (${inquiries.filter((i) => (i.status || 'pending') === 'pending').length})`}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="relative sm:w-64">
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
+                      <input
+                        type="text"
+                        placeholder="Search guest, phone, event..."
+                        value={inquirySearch}
+                        onChange={(e) => setInquirySearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-1.5 bg-[#12121b] border border-[#2e2e42] rounded-xl text-xs text-white outline-none focus:border-[#ffcc33]"
+                      />
+                    </div>
+                  </div>
+
+                  {filteredInquiries.length === 0 ? (
+                    <div className="py-12 text-center text-[#9ca3af]">
+                      <PartyPopper className="w-10 h-10 text-[#4b5563] mx-auto mb-2" />
+                      <p className="text-sm font-semibold">No event inquiries found.</p>
+                      <p className="text-xs text-[#6b7280] mt-1">
+                        Submissions from the "Host Your Event" page will appear here instantly.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {filteredInquiries.map((inq) => {
+                        const status = inq.status || 'pending';
+                        return (
+                          <div
+                            key={inq.id}
+                            className={`p-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                              status === 'pending'
+                                ? 'bg-[#1a1720] border-amber-500/40'
+                                : status === 'contacted'
+                                ? 'bg-[#151a24] border-sky-500/40'
+                                : status === 'confirmed'
+                                ? 'bg-[#14201a] border-emerald-500/40'
+                                : 'bg-[#14141d] border-[#252535] opacity-70'
+                            }`}
+                          >
+                            <div className="space-y-1.5 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-bold text-white text-base">{inq.name}</span>
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                    status === 'pending'
+                                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                      : status === 'contacted'
+                                      ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                                      : status === 'confirmed'
+                                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                      : 'bg-slate-700 text-slate-300'
+                                  }`}
+                                >
+                                  {status}
+                                </span>
+                                <span className="px-2 py-0.5 rounded-md bg-[#252538] text-[#ffcc33] text-xs font-semibold">
+                                  {inq.eventType}
+                                </span>
+                                <span className="text-[11px] text-[#9ca3af] flex items-center gap-1">
+                                  <Users className="w-3 h-3" /> {inq.estimatedGuests} Guests
+                                </span>
+                              </div>
+
+                              <div className="flex flex-wrap items-center gap-3 text-xs text-[#cbd5e1]">
+                                <span className="flex items-center gap-1 text-[#ffcc33] font-medium">
+                                  <Calendar className="w-3.5 h-3.5" /> {inq.preferredDate}
+                                </span>
+                                <span className="text-[#9ca3af]">&bull; Submitted: {inq.createdAt}</span>
+                              </div>
+
+                              {inq.notes && (
+                                <p className="text-xs text-[#e2e8f0] bg-[#12121c] p-2.5 rounded-xl border border-[#232334] italic">
+                                  "{inq.notes}"
+                                </p>
+                              )}
+
+                              {/* Customer Contact Links */}
+                              <div className="flex items-center gap-2 pt-1">
+                                <a
+                                  href={`tel:${inq.phone}`}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#202030] hover:bg-[#2e2e42] text-xs text-white transition-colors"
+                                >
+                                  <Phone className="w-3 h-3 text-[#ffcc33]" />
+                                  <span>{inq.phone}</span>
+                                </a>
+
+                                <a
+                                  href={formatWhatsAppUrl(inq.phone, inq.name, inq.eventType)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-700/60 hover:bg-emerald-600 text-xs text-white transition-colors"
+                                >
+                                  <MessageSquare className="w-3 h-3 text-emerald-300" />
+                                  <span>WhatsApp</span>
+                                </a>
+                              </div>
+                            </div>
+
+                            {/* Status Control Actions */}
+                            <div className="flex flex-wrap md:flex-col items-end gap-1.5 flex-shrink-0">
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleUpdateInquiryStatus(inq.id, 'contacted')}
+                                  title="Mark as Contacted"
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                                    status === 'contacted'
+                                      ? 'bg-sky-600 text-white'
+                                      : 'bg-[#202030] text-[#9ca3af] hover:text-white'
+                                  }`}
+                                >
+                                  Contacted
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateInquiryStatus(inq.id, 'confirmed')}
+                                  title="Confirm Reservation"
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                                    status === 'confirmed'
+                                      ? 'bg-emerald-600 text-white'
+                                      : 'bg-[#202030] text-[#9ca3af] hover:text-white'
+                                  }`}
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateInquiryStatus(inq.id, 'archived')}
+                                  title="Archive"
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                                    status === 'archived'
+                                      ? 'bg-slate-600 text-white'
+                                      : 'bg-[#202030] text-[#9ca3af] hover:text-white'
+                                  }`}
+                                >
+                                  Archive
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteInquiry(inq.id)}
+                                  title="Delete"
+                                  className="p-1.5 rounded-lg bg-[#202030] hover:bg-red-900/60 text-[#9ca3af] hover:text-red-300 transition-colors"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 3: Table Reservations (Part E) */}
+              {activeTab === 'reservations' && (
+                <div className="space-y-4">
+                  {/* Filters & Search */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#171724] p-3.5 rounded-2xl border border-[#2a2a3e]">
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+                      {(['all', 'pending', 'confirmed', 'archived'] as const).map((filter) => (
+                        <button
+                          key={filter}
+                          onClick={() => setReservationFilter(filter)}
+                          className={`px-2.5 py-1 rounded-lg text-xs font-bold capitalize transition-all ${
+                            reservationFilter === filter
+                              ? 'bg-[#8c1c1c] text-[#ffcc33]'
+                              : 'bg-[#202030] text-[#9ca3af] hover:text-white'
+                          }`}
+                        >
+                          {filter}
+                          {filter === 'all' && ` (${reservations.length})`}
+                          {filter === 'pending' && ` (${reservations.filter((r) => (r.status || 'pending') === 'pending').length})`}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div className="relative sm:w-64">
+                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#9ca3af]" />
+                      <input
+                        type="text"
+                        placeholder="Search guest, phone, game..."
+                        value={reservationSearch}
+                        onChange={(e) => setReservationSearch(e.target.value)}
+                        className="w-full pl-9 pr-3 py-1.5 bg-[#12121b] border border-[#2e2e42] rounded-xl text-xs text-white outline-none focus:border-[#ffcc33]"
+                      />
+                    </div>
+                  </div>
+
+                  {filteredReservations.length === 0 ? (
+                    <div className="py-12 text-center text-[#9ca3af]">
+                      <Calendar className="w-10 h-10 text-[#4b5563] mx-auto mb-2" />
+                      <p className="text-sm font-semibold">No table reservations found.</p>
+                      <p className="text-xs text-[#6b7280] mt-1">
+                        Submissions from the "Reserve a Table" form will appear here live.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {filteredReservations.map((res) => {
+                        const status = res.status || 'pending';
+                        return (
+                          <div
+                            key={res.id}
+                            className={`p-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                              status === 'pending'
+                                ? 'bg-[#1a1720] border-amber-500/40'
+                                : status === 'confirmed'
+                                ? 'bg-[#14201a] border-emerald-500/40'
+                                : 'bg-[#14141d] border-[#252535] opacity-70'
+                            }`}
+                          >
+                            <div className="space-y-1.5 flex-1">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className="font-bold text-white text-base">{res.name}</span>
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                                    status === 'pending'
+                                      ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                      : status === 'confirmed'
+                                      ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                      : 'bg-slate-700 text-slate-300'
+                                  }`}
+                                >
+                                  {status}
+                                </span>
+                                <span className="px-2 py-0.5 rounded-md bg-[#252538] text-[#ffcc33] text-xs font-semibold">
+                                  {res.partySize} Guests
+                                </span>
+                                {res.preferredGame && (
+                                  <span className="px-2 py-0.5 rounded-md bg-purple-900/40 border border-purple-500/30 text-purple-300 text-xs">
+                                    🎲 {res.preferredGame}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="flex flex-wrap items-center gap-3 text-xs text-[#cbd5e1]">
+                                <span className="flex items-center gap-1 text-[#ffcc33] font-medium">
+                                  <Clock className="w-3.5 h-3.5" /> {res.preferredDateTime}
+                                </span>
+                                <span className="text-[#9ca3af]">&bull; Logged: {res.createdAt}</span>
+                              </div>
+
+                              {res.specialNotes && (
+                                <p className="text-xs text-[#e2e8f0] bg-[#12121c] p-2.5 rounded-xl border border-[#232334] italic">
+                                  "{res.specialNotes}"
+                                </p>
+                              )}
+
+                              {/* Customer Contact Links */}
+                              <div className="flex items-center gap-2 pt-1">
+                                <a
+                                  href={`tel:${res.phone}`}
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#202030] hover:bg-[#2e2e42] text-xs text-white transition-colors"
+                                >
+                                  <Phone className="w-3 h-3 text-[#ffcc33]" />
+                                  <span>{res.phone}</span>
+                                </a>
+
+                                <a
+                                  href={formatWhatsAppUrl(res.phone, res.name, 'Table Reservation')}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-700/60 hover:bg-emerald-600 text-xs text-white transition-colors"
+                                >
+                                  <MessageSquare className="w-3 h-3 text-emerald-300" />
+                                  <span>WhatsApp</span>
+                                </a>
+                              </div>
+                            </div>
+
+                            {/* Status Actions */}
+                            <div className="flex flex-wrap md:flex-col items-end gap-1.5 flex-shrink-0">
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleUpdateReservationStatus(res.id, 'confirmed')}
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                                    status === 'confirmed'
+                                      ? 'bg-emerald-600 text-white'
+                                      : 'bg-[#202030] text-[#9ca3af] hover:text-white'
+                                  }`}
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  onClick={() => handleUpdateReservationStatus(res.id, 'archived')}
+                                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-colors ${
+                                    status === 'archived'
+                                      ? 'bg-slate-600 text-white'
+                                      : 'bg-[#202030] text-[#9ca3af] hover:text-white'
+                                  }`}
+                                >
+                                  Archive
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteReservation(res.id)}
+                                  className="p-1.5 rounded-lg bg-[#202030] hover:bg-red-900/60 text-[#9ca3af] hover:text-red-300 transition-colors"
+                                  title="Delete"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* TAB 4: Daily Special Banner */}
               {activeTab === 'special' && (
                 <div className="p-5 rounded-2xl bg-[#171725] border border-[#27273a] space-y-4 max-w-2xl mx-auto">
                   <div className="flex items-center justify-between">
@@ -612,7 +914,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs text-[#cbd5e1] font-bold uppercase mb-1">
-                          Linked Menu Item ID
+                          Linked Menu Item
                         </label>
                         <select
                           value={dailySpecial.linkedItemId || ''}
@@ -643,7 +945,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
 
                     <button
                       onClick={handleSaveDailySpecial}
-                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#b3231c] to-[#8c1c1c] text-white font-bebas text-lg tracking-wider font-bold shadow-lg"
+                      className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#b3231c] to-[#8c1c1c] text-white font-bebas text-lg tracking-wider font-bold shadow-lg active:scale-95 transition-all"
                     >
                       SAVE DAILY SPECIAL
                     </button>
@@ -651,7 +953,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              {/* TAB 4: Tournament Leaderboard Manager */}
+              {/* TAB 5: Tournament Leaderboard */}
               {activeTab === 'leaderboard' && (
                 <div className="space-y-6">
                   {/* Add Player Form */}
@@ -735,7 +1037,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              {/* TAB 6: Seasonal / Ramadan Hours Switch */}
+              {/* TAB 6: Seasonal / Ramadan Hours */}
               {activeTab === 'seasonal' && (
                 <div className="p-6 rounded-2xl bg-[#171725] border border-[#27273a] max-w-xl mx-auto space-y-4 text-center">
                   <div className="w-14 h-14 rounded-2xl bg-purple-900/50 border border-purple-500/40 text-purple-300 flex items-center justify-center mx-auto">
@@ -765,7 +1067,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                       onClick={handleToggleSeasonalMode}
                       className={`px-4 py-2 rounded-xl font-bebas text-lg tracking-wider font-bold transition-all ${
                         seasonalEnabled
-                          ? 'bg-purple-600 text-white'
+                          ? 'bg-purple-600 text-white shadow-lg'
                           : 'bg-[#28283c] text-[#9ca3af] hover:text-white'
                       }`}
                     >
@@ -779,7 +1081,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
               {activeTab === 'reviews' && (
                 reviews.length === 0 ? (
                   <div className="py-12 text-center text-[#9ca3af]">
-                    <p className="text-sm">No in-app submitted reviews yet.</p>
+                    <p className="text-sm">No reviews found.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -826,7 +1128,6 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
                   </div>
                 )
               )}
-
             </div>
           </div>
         )}

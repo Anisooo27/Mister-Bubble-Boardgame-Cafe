@@ -21,40 +21,36 @@ import {
 import { CAFE_CONFIG } from '../data/cafeConfig';
 import { DailySpecial } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { api } from '../services/api';
 
 export const Hero: React.FC = () => {
   const { t, isRTL, language } = useLanguage();
-  const [dailySpecial, setDailySpecial] = useState<DailySpecial | null>(null);
+  const [dailySpecial, setDailySpecial] = useState<DailySpecial | null>({
+    enabled: true,
+    title: 'Piña Colada Bleu & Fresh Takoyaki Waffle Special',
+    titleArabic: 'عرض اليوم: مشروب بينا كولادا الأزرق مع وافل التاكوياكي الطازج',
+    titleFrench: 'Spécial du Jour : Piña Colada Bleu & Gaufre Takoyaki',
+    subtitle: 'Visit today to enjoy our special combo pairing at the counter!',
+    linkedItemId: 'mojito-pina-colada-bleu',
+    specialPrice: 650,
+    badge: 'Special Duo Promo',
+  });
   const [isSeasonalActive, setIsSeasonalActive] = useState<boolean>(false);
 
   useEffect(() => {
-    try {
-      // Daily special
-      const savedSpecial = localStorage.getItem('mb_daily_special');
-      if (savedSpecial) {
-        setDailySpecial(JSON.parse(savedSpecial));
-      } else {
-        // Default special
-        setDailySpecial({
-          enabled: true,
-          title: 'Piña Colada Bleu & Fresh Takoyaki Waffle Special',
-          titleArabic: 'عرض اليوم: مشروب بينا كولادا الأزرق مع وافل التاكوياكي الطازج',
-          titleFrench: 'Spécial du Jour : Piña Colada Bleu & Gaufre Takoyaki',
-          subtitle: 'Visit today to enjoy our special combo pairing at the counter!',
-          linkedItemId: 'mojito-pina-colada-bleu',
-          specialPrice: 650,
-          badge: 'Special Duo Promo',
-        });
+    const fetchHeroData = async () => {
+      try {
+        const special = await api.getDailySpecial();
+        if (special) {
+          setDailySpecial(special);
+        }
+        const seasonal = await api.getSeasonalMode();
+        setIsSeasonalActive(seasonal);
+      } catch {
+        // ignore
       }
-
-      // Seasonal mode
-      const savedSeason = localStorage.getItem('mb_seasonal_mode');
-      if (savedSeason) {
-        setIsSeasonalActive(JSON.parse(savedSeason));
-      }
-    } catch {
-      // ignore
-    }
+    };
+    fetchHeroData();
   }, []);
 
   return (

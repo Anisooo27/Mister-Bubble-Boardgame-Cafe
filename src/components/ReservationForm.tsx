@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TableReservation } from '../types';
 import { useLanguage } from '../context/LanguageContext';
+import { api } from '../services/api';
 import {
   Calendar,
   Clock,
@@ -25,29 +26,18 @@ export const ReservationForm: React.FC = () => {
   const [specialNotes, setSpecialNotes] = useState('');
   const [submittedReservation, setSubmittedReservation] = useState<TableReservation | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !phone.trim() || !dateTime.trim()) return;
 
-    const newRes: TableReservation = {
-      id: `res-${Date.now()}`,
+    const newRes = await api.submitReservation({
       name: name.trim(),
       phone: phone.trim(),
       partySize: Number(partySize) || 2,
       preferredDateTime: dateTime.trim(),
       preferredGame: preferredGame.trim() || undefined,
       specialNotes: specialNotes.trim() || undefined,
-      status: 'pending',
-      createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-
-    try {
-      const stored = localStorage.getItem('mb_reservations') || '[]';
-      const parsed: TableReservation[] = JSON.parse(stored);
-      localStorage.setItem('mb_reservations', JSON.stringify([newRes, ...parsed]));
-    } catch {
-      // ignore
-    }
+    });
 
     try {
       confetti({

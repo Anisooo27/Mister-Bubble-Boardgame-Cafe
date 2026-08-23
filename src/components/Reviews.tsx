@@ -3,22 +3,26 @@ import { ReviewItem } from '../types';
 import { REVIEWS_DATA } from '../data/reviewsData';
 import { TornBanner } from './TornBanner';
 import { MonsteraLeaf } from './MonsteraLeaf';
+import { api } from '../services/api';
 import { Star, CheckCircle, ExternalLink, Plus, MessageSquare, Sparkles, Send, User } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
 export const Reviews: React.FC = () => {
-  const [reviews, setReviews] = useState<ReviewItem[]>(() => {
-    try {
-      const saved = localStorage.getItem('mb_custom_reviews');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        return [...parsed, ...REVIEWS_DATA];
+  const [reviews, setReviews] = useState<ReviewItem[]>(REVIEWS_DATA);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const remote = await api.getReviews();
+        if (remote && remote.length > 0) {
+          setReviews(remote.filter((r) => r.status !== 'hidden'));
+        }
+      } catch {
+        // fallback
       }
-    } catch {
-      // fallback
-    }
-    return REVIEWS_DATA;
-  });
+    };
+    fetchReviews();
+  }, []);
 
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [formName, setFormName] = useState('');
@@ -29,7 +33,7 @@ export const Reviews: React.FC = () => {
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  const handleRatingSubmit = (e: React.FormEvent) => {
+  const handleRatingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
 
@@ -43,26 +47,17 @@ export const Reviews: React.FC = () => {
       return;
     }
 
-    const newReview: ReviewItem = {
-      id: `rev-${Date.now()}`,
+    const created = await api.submitReview({
       author: formName.trim(),
       rating: formRating,
-      date: 'Just now',
       text: formComment.trim(),
       highlight: formComment.trim().slice(0, 45) + (formComment.length > 45 ? '...' : ''),
       source: 'In-App Verified',
       visitType: formVisitType,
-    };
+    });
 
-    const updated = [newReview, ...reviews];
+    const updated = [created, ...reviews];
     setReviews(updated);
-
-    try {
-      const customOnly = updated.filter((r) => r.source === 'In-App Verified');
-      localStorage.setItem('mb_custom_reviews', JSON.stringify(customOnly));
-    } catch {
-      // ignore
-    }
 
     // Trigger confetti
     try {

@@ -88,7 +88,7 @@ export interface TableReservation {
   preferredDateTime: string;
   preferredGame?: string;
   specialNotes?: string;
-  status: 'pending' | 'confirmed';
+  status: 'pending' | 'confirmed' | 'archived' | 'cancelled';
   createdAt: string;
 }
 
@@ -100,6 +100,7 @@ export interface EventBooking {
   estimatedGuests: number;
   preferredDate: string;
   notes?: string;
+  status?: 'pending' | 'contacted' | 'confirmed' | 'archived';
   createdAt: string;
 }
 
