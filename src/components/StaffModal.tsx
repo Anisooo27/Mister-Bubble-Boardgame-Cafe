@@ -87,9 +87,36 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
     if (isOpen && isUnlocked) {
       loadData();
     }
-  }, [isOpen, isUnlocked]);
+  }, [isOpen, isUnlocked, activeTab]);
 
   const loadData = async () => {
+    // 1. Instant hydration from local storage cache
+    try {
+      const storedInq = localStorage.getItem('mb_event_bookings');
+      if (storedInq) setInquiries(JSON.parse(storedInq));
+
+      const storedRes = localStorage.getItem('mb_reservations');
+      if (storedRes) setReservations(JSON.parse(storedRes));
+
+      const storedRev = localStorage.getItem('mb_custom_reviews');
+      if (storedRev) setReviews(JSON.parse(storedRev));
+
+      const storedSold = localStorage.getItem('mb_sold_out_items');
+      if (storedSold) setSoldOutItemIds(JSON.parse(storedSold));
+
+      const storedSpec = localStorage.getItem('mb_daily_special');
+      if (storedSpec) setDailySpecial(JSON.parse(storedSpec));
+
+      const storedLead = localStorage.getItem('mb_leaderboard');
+      if (storedLead) setLeaderboard(JSON.parse(storedLead));
+
+      const storedSeason = localStorage.getItem('mb_seasonal_mode');
+      if (storedSeason) setSeasonalEnabled(JSON.parse(storedSeason));
+    } catch (e) {
+      console.warn('Local cache hydration error:', e);
+    }
+
+    // 2. Live remote sync with Upstash Redis backend
     setIsLoading(true);
     try {
       const syncData = await api.getLiveSync();
@@ -103,7 +130,7 @@ export const StaffModal: React.FC<StaffModalProps> = ({ isOpen, onClose }) => {
         if (typeof syncData.seasonalEnabled === 'boolean') setSeasonalEnabled(syncData.seasonalEnabled);
       }
     } catch (e) {
-      console.error('Error loading live data:', e);
+      console.error('Error loading live sync data:', e);
     } finally {
       setIsLoading(false);
     }
